@@ -1,0 +1,6 @@
+@VirtualExcursion_HostAddress = http://localhost:5209
+
+GET {{VirtualExcursion_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,70 @@
+﻿# Сначала общие системные папки
+/.vs/
+/.vscode/
+/.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Папки зависимостей - это САМОЕ ВАЖНОЕ!
+**/node_modules/
+**/bin/
+**/obj/
+**/packages/
+**/dist/
+**/build/
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.temp
+.DS_Store
+
+# Файлы базы данных (не коммитим локальные БД)
+*.mdf
+*.ldf
+*.sdf
+*.mdb
+
+# Конфигурация с секретами (ВАЖНО!)
+**/appsettings.Development.json
+**/appsettings.Production.json
+# Но базовый appsettings.json можно коммитить (там общие настройки)
+
+# Файлы окружения
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Папка загруженных файлов (куда админ грузит 3D модели)
+**/wwwroot/uploads/
+**/uploads/
+# Но можно создать исключение, чтобы папка существовала, но была пустой
+!**/wwwroot/uploads/.gitkeep
+!**/uploads/.gitkeep
+
+# Файлы, специфичные для React
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Файлы, специфичные для .NET
+*.swp
+*.*~
+project.lock.json
+*.DotSettings
+.vs/
+_ReSharper*/
+*.resharper
+
+# Тестовые покрытия
+**/coverage/
+**/TestResults/
+
+# Файлы, создаваемые IDE
+*.swp
+*.swo
+*.*~
+*.DS_Store
