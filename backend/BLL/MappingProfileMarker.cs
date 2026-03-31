@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VirtualExcursion.BLL.services.interfaces;
 
-namespace VirtualExcursion.BLL.services
+namespace VirtualExcursion.BLL
 {
-    public class UserService : IUserService
+    public class MappingProfileMarker
     {
-
     }
 }
