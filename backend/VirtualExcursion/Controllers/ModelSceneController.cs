@@ -1,43 +1,173 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VirtualExcursion.BLL.DTO.Requests;
+using VirtualExcursion.BLL.DTO.Responses;
+using VirtualExcursion.BLL.services.interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace VirtualExcursion.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ModelSceneController : ControllerBase
     {
-        // GET: api/<ModelSceneController>
+        private readonly IModelSceneService _service;
+        private readonly ILogger<ModelSceneController> _logger;
+
+        public ModelSceneController(IModelSceneService service, ILogger<ModelSceneController> logger)
+        {
+            _service = service;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Получить все модели сцен
+        /// </summary>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<List<ModelSceneResponse>>> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                var result = await _service.Get();
+                _logger.LogInformation("Успешно получено {Count} моделей сцен", result.Count);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении всех моделей сцен");
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // GET api/<ModelSceneController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        /// <summary>
+        /// Получить модель сцены по id
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<ModelSceneResponse>> GetById(int id)
         {
-            return "value";
+            try
+            {
+                var result = await _service.GetById(id);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении модели сцены {Id}", id);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // POST api/<ModelSceneController>
+        /// <summary>
+        /// Получить модель сцены по id сцены
+        /// </summary>
+        [HttpGet("scene/{sceneId:int}")]
+        public async Task<ActionResult<ModelSceneResponse>> GetBySceneId(int sceneId)
+        {
+            try
+            {
+                var result = await _service.GetBySceneId(sceneId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении модели для сцены {SceneId}", sceneId);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
+        }
+
+        /// <summary>
+        /// Создать новую модель сцены
+        /// </summary>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<ModelSceneResponse>> Create([FromBody] CreateModelSceneRequest request)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _service.Create(request);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при создании модели сцены");
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // PUT api/<ModelSceneController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        /// <summary>
+        /// Обновить модель сцены
+        /// </summary>
+        [HttpPut]
+        public async Task<ActionResult<ModelSceneResponse>> Update([FromBody] UpdateModelSceneRequest request)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _service.Update(request);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при обновлении модели сцены {Id}", request.Id);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // DELETE api/<ModelSceneController>/5
+        /// <summary>
+        /// Удалить модель сцены
+        /// </summary>
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            try
+            {
+                var result = await _service.Delete(id);
+                if (result)
+                    return NoContent();
+
+                return NotFound($"Модель сцены с id {id} не найдена");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении модели сцены {Id}", id);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
     }
 }

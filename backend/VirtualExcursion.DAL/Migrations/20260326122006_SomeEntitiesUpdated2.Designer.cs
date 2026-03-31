@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VirtualExcursion.DAL.context;
 
@@ -11,9 +12,11 @@ using VirtualExcursion.DAL.context;
 namespace VirtualExcursion.DAL.Migrations
 {
     [DbContext(typeof(VExContext))]
-    partial class VExContextModelSnapshot : ModelSnapshot
+    [Migration("20260326122006_SomeEntitiesUpdated2")]
+    partial class SomeEntitiesUpdated2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,7 +302,7 @@ namespace VirtualExcursion.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserRole")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

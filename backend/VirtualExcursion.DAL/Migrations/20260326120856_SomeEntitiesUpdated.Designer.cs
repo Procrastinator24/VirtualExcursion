@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VirtualExcursion.DAL.context;
 
@@ -11,9 +12,11 @@ using VirtualExcursion.DAL.context;
 namespace VirtualExcursion.DAL.Migrations
 {
     [DbContext(typeof(VExContext))]
-    partial class VExContextModelSnapshot : ModelSnapshot
+    [Migration("20260326120856_SomeEntitiesUpdated")]
+    partial class SomeEntitiesUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,20 +39,13 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Property<string>("ContactEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsOrganization")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LogoUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OrganizationName")
-                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -292,14 +288,10 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("LastLogin")
+                    b.Property<DateTime>("LastLogin")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserRole")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

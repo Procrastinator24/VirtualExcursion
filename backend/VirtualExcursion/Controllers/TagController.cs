@@ -1,43 +1,172 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VirtualExcursion.BLL.DTO.Requests;
+using VirtualExcursion.BLL.DTO.Responses;
+using VirtualExcursion.BLL.services.interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace VirtualExcursion.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class TagController : ControllerBase
     {
-        // GET: api/<TagController>
+        private readonly ITagService _service;
+        private readonly ILogger<TagController> _logger;
+
+        public TagController(ITagService service, ILogger<TagController> logger)
+        {
+            _service = service;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Получить все теги
+        /// </summary>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<List<TagResponse>>> GetAll()
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                var result = await _service.Get();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении всех тегов");
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // GET api/<TagController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        /// <summary>
+        /// Получить тег по id
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<TagResponse>> GetById(int id)
         {
-            return "value";
+            try
+            {
+                var result = await _service.GetById(id);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении тега {Id}", id);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // POST api/<TagController>
+        /// <summary>
+        /// Получить тег по slug
+        /// </summary>
+        [HttpGet("slug/{slug}")]
+        public async Task<ActionResult<TagResponse>> GetBySlug(string slug)
+        {
+            try
+            {
+                var result = await _service.GetBySlug(slug);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при получении тега по slug '{Slug}'", slug);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
+        }
+
+        /// <summary>
+        /// Создать новый тег
+        /// </summary>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<ActionResult<TagResponse>> Create([FromBody] CreateTagRequest request)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _service.Create(request);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message); // 409 Conflict
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при создании тега");
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // PUT api/<TagController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        /// <summary>
+        /// Обновить тег
+        /// </summary>
+        [HttpPut]
+        public async Task<ActionResult<TagResponse>> Update([FromBody] UpdateTagRequest request)
         {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _service.Update(request);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при обновлении тега {Id}", request.Id);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
 
-        // DELETE api/<TagController>/5
+        /// <summary>
+        /// Удалить тег
+        /// </summary>
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
+            try
+            {
+                var result = await _service.Delete(id);
+                if (result)
+                    return NoContent();
+
+                return NotFound($"Тег с id {id} не найден");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении тега {Id}", id);
+                return StatusCode(500, "Внутренняя ошибка сервера");
+            }
         }
     }
 }
