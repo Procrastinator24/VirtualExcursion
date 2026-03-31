@@ -26,12 +26,14 @@ namespace VirtualExcursion
             builder.Services.AddScoped<IPOIRepository, POIRepository>();
             builder.Services.AddScoped<ITagRepository, TagRepository>();
             builder.Services.AddScoped<IGuideProfileRepository, GuideProfileRepository>();
+            builder.Services.AddScoped<IUserRepository,  UserRepository>();
 
             // Сервисы
             builder.Services.AddScoped<IPOIService, POIService>();
             builder.Services.AddScoped<IModelSceneService, ModelSceneService>();
             builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddScoped<IGuideProfileService, GuideProfileService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
 
             builder.Services.AddAutoMapper(typeof(VirtualExcursion.BLL.MappingProfileMarker));
