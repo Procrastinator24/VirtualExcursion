@@ -10,6 +10,7 @@ namespace VirtualExcursion.DAL.Repositories.interfaces
     public interface IUserRepository
     {
         Task<List<User>> GetUsers();
+        Task<bool> ExistsByEmail(string email);
         Task<User> GetById(int id);
         Task<User> GetByEmail(string email);
         Task<bool> Delete(int id);

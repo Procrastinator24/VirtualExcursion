@@ -1,5 +1,10 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using VirtualExcursion.BLL.services;
 using VirtualExcursion.BLL.services.interfaces;
 using VirtualExcursion.DAL.context;
@@ -34,10 +39,79 @@ namespace VirtualExcursion
             builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddScoped<IGuideProfileService, GuideProfileService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
 
             builder.Services.AddAutoMapper(typeof(VirtualExcursion.BLL.MappingProfileMarker));
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Virtual Excursion API",
+                    Version = "v1",
+                    Description = "API для управления виртуальными экскурсиями"
+                });
+
+                // НАСТРОЙКА JWT ДЛЯ SWAGGER
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Введите JWT токен в формате: eyJhbGciOiJIUzI1NiIs..."
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
+
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            };
+
+            // Для передачи токена через заголовок
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        context.Token = token;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+            builder.Services.AddAuthorization();
 
             var app = builder.Build();
 
@@ -51,6 +125,8 @@ namespace VirtualExcursion
 
             app.UseHttpsRedirection();
 
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
