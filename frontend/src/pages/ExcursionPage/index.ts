@@ -1,0 +1,1 @@
+export {ExcursionPage} from "./ui/excursionPage.tsx"
