@@ -8,6 +8,7 @@ using VirtualExcursion.BLL.DTO.Requests;
 using VirtualExcursion.BLL.DTO.Responses;
 using VirtualExcursion.BLL.services.interfaces;
 using VirtualExcursion.DAL.models;
+using VirtualExcursion.DAL.Repositories;
 using VirtualExcursion.DAL.Repositories.interfaces;
 
 namespace VirtualExcursion.BLL.services
@@ -26,6 +27,17 @@ namespace VirtualExcursion.BLL.services
         public async Task<List<GuideProfileResponse>> Get()
         {
             var profiles = await _repository.Get();
+            return _mapper.Map<List<GuideProfileResponse>>(profiles);
+        }
+        public async Task<List<GuideProfileResponse>> GetIndividuals()
+        {
+            var profiles = await _repository.Get(gp => !gp.IsOrganization);
+            return _mapper.Map<List<GuideProfileResponse>>(profiles);
+        }
+
+        public async Task<List<GuideProfileResponse>> GetOrganizations()
+        {
+            var profiles = await _repository.Get(gp => gp.IsOrganization);
             return _mapper.Map<List<GuideProfileResponse>>(profiles);
         }
 

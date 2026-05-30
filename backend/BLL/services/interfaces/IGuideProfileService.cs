@@ -11,6 +11,8 @@ namespace VirtualExcursion.BLL.services.interfaces
     public interface IGuideProfileService
     {
         Task<List<GuideProfileResponse>> Get();
+        Task<List<GuideProfileResponse>> GetIndividuals();
+        Task<List<GuideProfileResponse>> GetOrganizations();
         Task<GuideProfileResponse> GetById(int id);
         Task<GuideProfileResponse> GetByUserId(int userId);
         Task<GuideProfileResponse> Create(CreateGuideProfileRequest request);

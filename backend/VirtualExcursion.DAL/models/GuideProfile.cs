@@ -22,6 +22,7 @@ namespace VirtualExcursion.DAL.models
 
         public User User { get; set; } = null!;
         public ICollection<Scene> Scenes { get; set; } = new List<Scene>();
+        public virtual ICollection<Excursion> Excursions { get; set; } = new List<Excursion>();
 
     }
 }

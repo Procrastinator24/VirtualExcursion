@@ -1,24 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace VirtualExcursion.DAL.models
 {
+    public enum UserRole
+    {
+        User,      // обычный пользователь
+        Guide,     // гид (может создавать экскурсии)
+        Admin      // администратор
+    }
+
     public class User
     {
+        [Key]
         public int Id { get; set; }
-        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(100)]
         public string Username { get; set; } = string.Empty;
+
+        [Required]
+        [MaxLength(100)]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
         public string PasswordHash { get; set; } = string.Empty;
-        public string UserRole { get; set; } = "Guide"; 
-        public bool IsApproved { get; set; } = false;
+
+        public UserRole Role { get; set; } = UserRole.User;
+
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpiry { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? LastLogin { get; set; }
 
-        public GuideProfile? GuideProfile { get; set; }
+        // Navigation
+        public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
 
+        public virtual GuideProfile GuideProfile { get; set; } = new GuideProfile();
     }
 
 }
