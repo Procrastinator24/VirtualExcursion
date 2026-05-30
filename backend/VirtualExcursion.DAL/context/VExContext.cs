@@ -28,10 +28,92 @@ namespace VirtualExcursion.DAL.context
         public DbSet<POI> PointsOfInterest { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<SceneTag> SceneTags { get; set; }
+        public DbSet<Excursion> Excursion { get; set; }
+        public DbSet<ExcursionScene> ExcursionScene { get; set; }
+        public DbSet<Favourite> Favourite { get; set; }
+        public DbSet<ExcursionTag> ExcursionTag { get; set; }
+        public DbSet<Workspace> Workspaces { get; set; }
+        public DbSet<WorkspaceMember> WorkspacesMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Workspace
+            modelBuilder.Entity<Workspace>(entity =>
+            {
+                entity.HasKey(w => w.Id);
+
+                
+
+                entity.Property(w => w.Name).IsRequired().HasMaxLength(200);
+                entity.Property(w => w.Type).HasMaxLength(50).HasDefaultValue("personal");
+
+                entity.HasOne(w => w.Owner)
+                    .WithMany()
+                    .HasForeignKey(w => w.OwnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(w => w.VerificationStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .HasDefaultValue(VerificationStatus.NotSubmitted);
+
+                entity.HasIndex(w => w.OwnerId);
+                entity.HasIndex(w => w.VerificationStatus);
+                entity.HasIndex(w => w.Type);
+            });
+
+            modelBuilder.Entity<WorkspaceMember>(entity =>
+            {
+                entity.HasKey(wm => new { wm.WorkspaceId, wm.UserId });
+
+                entity.HasOne(wm => wm.Workspace)
+                    .WithMany(w => w.Members)
+                    .HasForeignKey(wm => wm.WorkspaceId);
+
+                entity.HasOne(wm => wm.User)
+                    .WithMany()
+                    .HasForeignKey(wm => wm.UserId);
+
+                entity.HasOne(wm => wm.InvitedBy)
+                    .WithMany()
+                    .HasForeignKey(wm => wm.InvitedById)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                
+                entity.Property(wm => wm.Role)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .HasDefaultValue(WorkspaceRole.Editor);
+
+                entity.Property(wm => wm.InvitationStatus)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .HasDefaultValue(InvitationStatus.Accepted);
+
+                entity.Property(wm => wm.JoinedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            // Excursion — добавить связь с Workspace
+            modelBuilder.Entity<Excursion>(entity =>
+            {
+                entity.HasOne(e => e.Workspace)
+                    .WithMany(w => w.Excursions)
+                    .HasForeignKey(e => e.WorkspaceId)
+                    .OnDelete(DeleteBehavior.SetNull);  // при удалении Workspace — экскурсии остаются, но без автора
+            });
+
+            // Scene — добавить связь с Workspace
+            modelBuilder.Entity<Scene>(entity =>
+            {
+                entity.HasOne(s => s.Workspace)
+                    .WithMany(w => w.Scenes)
+                    .HasForeignKey(s => s.WorkspaceId)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
 
             // ==================== User & GuideProfile ====================
 
@@ -46,6 +128,15 @@ namespace VirtualExcursion.DAL.context
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Scene>()
+                .Property(s => s.ContentType)
+                .HasDefaultValue("3d");
+
 
             // ==================== GuideProfile & Scene ====================
 
@@ -109,6 +200,42 @@ namespace VirtualExcursion.DAL.context
                 .WithMany(t => t.SceneTags)
                 .HasForeignKey(st => st.TagId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+            // ExcursionScene (многие-ко-многим с порядком)
+            modelBuilder.Entity<ExcursionScene>()
+                .HasKey(es => new { es.ExcursionId, es.SceneId });
+
+            modelBuilder.Entity<ExcursionScene>()
+                .HasOne(es => es.Excursion)
+                .WithMany(e => e.ExcursionScenes)
+                .HasForeignKey(es => es.ExcursionId);
+
+            modelBuilder.Entity<ExcursionScene>()
+                .HasOne(es => es.Scene)
+                .WithMany(s => s.ExcursionScenes)
+                .HasForeignKey(es => es.SceneId);
+
+            // Favourite
+            modelBuilder.Entity<Favourite>()
+                .HasOne(f => f.User)
+                .WithMany(u => u.Favourites)
+                .HasForeignKey(f => f.UserId);
+
+
+            // ExcursionTag
+            modelBuilder.Entity<ExcursionTag>()
+                .HasKey(et => new { et.ExcursionId, et.TagId });
+
+            modelBuilder.Entity<ExcursionTag>()
+                .HasOne(et => et.Excursion)
+                .WithMany(e => e.ExcursionTags)
+                .HasForeignKey(et => et.ExcursionId);
+
+            modelBuilder.Entity<ExcursionTag>()
+                .HasOne(et => et.Tag)
+                .WithMany(t => t.ExcursionTags)
+                .HasForeignKey(et => et.TagId);
 
             // ==================== Индексы для оптимизации ====================
 

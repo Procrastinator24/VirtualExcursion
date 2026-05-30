@@ -75,8 +75,7 @@ namespace VirtualExcursion.DAL.Repositories
                 throw new KeyNotFoundException($"Пользователь не найден");
             existing.Username = user.Username; 
             existing.Email = user.Email;
-            existing.IsApproved = user.IsApproved;
-            existing.UserRole = user.UserRole;
+            existing.Role = user.Role;
 
             await _context.SaveChangesAsync();
             return existing;

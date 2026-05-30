@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using VirtualExcursion.DAL.context;
@@ -24,6 +25,15 @@ namespace VirtualExcursion.DAL.Repositories
             return await _context.GuideProfiles
                 .Include(g => g.User)
                 .Include(g => g.Scenes)
+                .Include(gp => gp.Excursions)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        public async Task<List<GuideProfile>> Get(Expression<Func<GuideProfile, bool>> predicate)
+        {
+            return await _context.GuideProfiles
+                .Include(gp => gp.User)
+                .Where(predicate)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -33,6 +43,7 @@ namespace VirtualExcursion.DAL.Repositories
             return await _context.GuideProfiles
                 .Include(g => g.User)
                 .Include(g => g.Scenes)
+                .Include(gp => gp.Excursions)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(g => g.Id == id);
         }

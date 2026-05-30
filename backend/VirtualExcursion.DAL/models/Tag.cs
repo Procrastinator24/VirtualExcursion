@@ -16,5 +16,6 @@ namespace VirtualExcursion.DAL.models
 
         // Navigation
         public ICollection<SceneTag> SceneTags { get; set; } = new List<SceneTag>();
+        public ICollection<ExcursionTag> ExcursionTags { get; set; } = new List<ExcursionTag>();  // ← новое
     }
 }

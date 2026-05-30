@@ -21,7 +21,7 @@ namespace VirtualExcursion.BLL.DTO.mappings
 
             // Entity → Response
             CreateMap<POI, POIResponse>()
-                .ForMember(dest => dest.ModelSceneName,
+                .ForMember(dest => dest.SceneName,
                     opt => opt.MapFrom(src => src.Scene != null ? src.Scene.Title : null));
        }
     }

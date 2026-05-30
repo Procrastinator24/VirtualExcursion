@@ -1,12 +1,15 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 using VirtualExcursion.BLL.services;
 using VirtualExcursion.BLL.services.interfaces;
+using VirtualExcursion.BLL.Services;
 using VirtualExcursion.DAL.context;
 using VirtualExcursion.DAL.Repositories;
 using VirtualExcursion.DAL.Repositories.interfaces;
@@ -32,6 +35,13 @@ namespace VirtualExcursion
             builder.Services.AddScoped<ITagRepository, TagRepository>();
             builder.Services.AddScoped<IGuideProfileRepository, GuideProfileRepository>();
             builder.Services.AddScoped<IUserRepository,  UserRepository>();
+            builder.Services.AddScoped<ISceneRepository, SceneRepository>();
+            builder.Services.AddScoped<IExcursionRepository, ExcursionRepository>();
+            builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
+            builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+            builder.Services.AddScoped<IWorkspaceMemberRepository, WorkspaceMemberRepository>();
+
+
 
             // Сервисы
             builder.Services.AddScoped<IPOIService, POIService>();
@@ -41,6 +51,15 @@ namespace VirtualExcursion
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ISceneService, SceneService>();
+            builder.Services.AddScoped<IExcursionService, ExcursionService>();
+            builder.Services.AddScoped<IFavouriteService, FavouriteService>();
+            builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+            builder.Services.AddScoped<IWorkspaceService, WorkspaceService>();
+            builder.Services.AddScoped<IWorkspaceMemberService, WorkspaceMemberService>();
+
+            builder.Services.AddSingleton<IVerificationCodeStorage, InMemoryCodeStorage>();
+
 
 
             builder.Services.AddAutoMapper(typeof(VirtualExcursion.BLL.MappingProfileMarker));
@@ -52,6 +71,9 @@ namespace VirtualExcursion
                     Version = "v1",
                     Description = "API для управления виртуальными экскурсиями"
                 });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
 
                 // НАСТРОЙКА JWT ДЛЯ SWAGGER
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -114,13 +136,22 @@ namespace VirtualExcursion
             builder.Services.AddAuthorization();
 
             var app = builder.Build();
+            var provider = new FileExtensionContentTypeProvider();
+            provider.Mappings[".glb"] = "model/gltf-binary";
+            provider.Mappings[".gltf"] = "model/gltf+json";
 
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                ContentTypeProvider = provider
+            });
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-                
+                app.UseStaticFiles(); 
+                app.UseDirectoryBrowser();
+
             }
 
             app.UseHttpsRedirection();

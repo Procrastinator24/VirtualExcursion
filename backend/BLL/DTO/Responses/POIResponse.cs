@@ -15,6 +15,6 @@ namespace VirtualExcursion.BLL.DTO.Responses
         public float Y { get; set; }
         public float Z { get; set; }
         public int SceneId { get; set; }
-        public string ModelSceneName { get; set; }
+        public string SceneName { get; set; }
     }
 }

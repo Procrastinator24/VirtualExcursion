@@ -9,19 +9,30 @@ namespace VirtualExcursion.BLL.DTO.Requests
 {
     public class RegisterRequest
     {
-        [Required(ErrorMessage = "Имя обязательно")]
-        [MaxLength(100)]
-        public string Name { get; set; }
+        public class RegisterWithCodeRequest
+        {
+            [Required]
+            [EmailAddress]
+            public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email обязателен")]
-        [EmailAddress(ErrorMessage = "Некорректный формат email")]
-        public string Email { get; set; }
+            [Required]
+            [MinLength(4)]
+            [MaxLength(4)]
+            public string Code { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Пароль обязателен")]
-        [MinLength(6, ErrorMessage = "Пароль должен быть не менее 6 символов")]
-        public string Password { get; set; }
+            [Required]
+            [MinLength(2)]
+            [MaxLength(100)]
+            public string Name { get; set; } = string.Empty;
 
-        [Compare("Password", ErrorMessage = "Пароли не совпадают")]
-        public string ConfirmPassword { get; set; }
+            //[Required]
+            //[MinLength(2)]
+            //[MaxLength(100)]
+            //public string LastName { get; set; } = string.Empty;
+
+            [Required]
+            [MinLength(6)]
+            public string Password { get; set; } = string.Empty;
+        }
     }
 }

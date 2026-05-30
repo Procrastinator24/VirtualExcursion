@@ -10,9 +10,11 @@ namespace VirtualExcursion.BLL.DTO.Responses
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public string UserName { get; set; } // имя пользователя (из связанного User)
-        public string UserEmail { get; set; } // email пользователя
-        public string OrganizationName { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
+
+        // GuideProfile поля
+        public string OrganizationName { get; set; } = string.Empty;
         public string? Description { get; set; }
         public string? LogoUrl { get; set; }
         public string? Website { get; set; }
@@ -21,6 +23,10 @@ namespace VirtualExcursion.BLL.DTO.Responses
         public string? Address { get; set; }
         public bool IsOrganization { get; set; }
         public DateTime CreatedAt { get; set; }
-        public int ScenesCount { get; set; } // количество сцен у гида
+
+        // Дополнительные поля
+        public int ScenesCount { get; set; }
+        public int? Rating { get; set; }  // пока null, потом добавишь логику
+        public int ExcursionsCount { get; set; }  // количество экскурсий гида
     }
 }
