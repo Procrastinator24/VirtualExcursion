@@ -42,6 +42,7 @@ namespace VirtualExcursion.BLL.services
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
+            // Проверяем, что существует либо экскурсия, либо сцена
             if (request.ExcursionId.HasValue && !await _excursionRepository.Exists(request.ExcursionId.Value))
                 throw new KeyNotFoundException($"Экскурсия с id {request.ExcursionId} не найдена");
 

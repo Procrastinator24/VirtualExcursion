@@ -63,6 +63,7 @@ namespace VirtualExcursion.BLL.services
 
             var created = await _workspaceRepository.Create(workspace);
 
+            // Добавляем владельца как участника с ролью Admin
             var member = new WorkspaceMember
             {
                 WorkspaceId = created.Id,

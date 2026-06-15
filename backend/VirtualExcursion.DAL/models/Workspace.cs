@@ -50,6 +50,7 @@ namespace VirtualExcursion.DAL.models
         [MaxLength(200)]
         public string? City { get; set; }
 
+        // Данные для верификации (простые поля, пока без наследования)
         [MaxLength(200)]
         public string? Country { get; set; }
         // Данные для верификации (простые поля, пока без наследования)

@@ -21,8 +21,15 @@ namespace VirtualExcursion.DAL.models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public ICollection<POI> PointsOfInterest { get; set; } = new List<POI>();
+
         public virtual GuideProfile Author { get; set; } = null!;
+
+        public int? WorkspaceId { get; set; }
+        public virtual Workspace? Workspace { get; set; }
+
         public ModelScene? ModelScene { get; set; }
+
+        public ICollection<ExcursionScene> ExcursionScenes { get; set; } = new List<ExcursionScene>();
         public ICollection<SceneTag> SceneTags { get; set; } = new List<SceneTag>();
 
     }

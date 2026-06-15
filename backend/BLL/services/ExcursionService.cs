@@ -53,7 +53,7 @@ namespace VirtualExcursion.BLL.services
         }
 
 
-        public async Task<ExcursionResponse> Create(CreateExcursionRequest request, int userId)
+        public async Task<ExcursionResponse> Create(CreateExcursionRequest request, int guideProfileId)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -67,6 +67,7 @@ namespace VirtualExcursion.BLL.services
 
             var created = await _excursionRepository.Create(excursion);
 
+            // 2. Привязываем сцены к экскурсии
             if (request.SceneIds != null && request.SceneIds.Any())
             {
                 for (int i = 0; i < request.SceneIds.Count; i++)
@@ -76,6 +77,7 @@ namespace VirtualExcursion.BLL.services
                 }
             }
 
+            // 3. Привязываем теги (если есть)
             if (request.TagIds != null && request.TagIds.Any())
             {
                 foreach (var tagId in request.TagIds)
@@ -84,6 +86,7 @@ namespace VirtualExcursion.BLL.services
                 }
             }
 
+            // 4. Возвращаем созданную экскурсию с привязанными данными
             var response = await _excursionRepository.GetById(created.Id);
             return _mapper.Map<ExcursionResponse>(response);
         }

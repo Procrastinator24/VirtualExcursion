@@ -23,6 +23,7 @@ export const UserProfilePage = () => {
     const [workspaces, setWorkspaces] = useState<WorkspaceResponse[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Загрузка созданных экскурсий (если пользователь — гид)
     useEffect(() => {
         const loadWorkspaces = async () => {
 
@@ -84,19 +85,19 @@ export const UserProfilePage = () => {
                         currentAvatarUrl={user.avatarUrl}
                         userName={user.userName}
                         onAvatarUpdate={handleAvatarUpdate}
-                    />
+                        />
 
                     <div className="flex-1">
                         <h1 className="text-stone-900" style={{ fontSize: 26, fontWeight: 600 }}>
                             {user.userName}
                         </h1>
                         <span className="text-stone-500" style={{ fontSize: 14 }}>
-                {user.email}
-            </span>
+                            {user.email}
+                        </span>
                         <div className="flex items-center gap-6 mt-4 text-stone-400" style={{ fontSize: 13 }}>
-                <span className="flex items-center gap-1.5">
-                    <Heart className="w-4 h-4" /> {stats.favoritesCount} избранное
-                </span>
+                            <span className="flex items-center gap-1.5">
+                                <Heart className="w-4 h-4" /> {stats.favoritesCount} избранное
+                            </span>
                         </div>
                     </div>
                 </div>

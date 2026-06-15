@@ -45,6 +45,7 @@ namespace VirtualExcursion.BLL.services
 
         public async Task<WorkspaceMemberResponse> AddMember(AddWorkspaceMemberRequest request, int invitedById)
         {
+            // Проверяем, существует ли workspace
             if (!await _workspaceRepository.Exists(request.WorkspaceId))
                 throw new KeyNotFoundException($"Workspace с id {request.WorkspaceId} не найден");
 
@@ -52,6 +53,7 @@ namespace VirtualExcursion.BLL.services
             //if (!await _userRepository.Exists(request.UserId))
             //    throw new KeyNotFoundException($"Пользователь с id {request.UserId} не найден");
 
+            // Проверяем, не является ли пользователь уже участником
             if (await _memberRepository.IsMember(request.WorkspaceId, request.UserId))
                 throw new InvalidOperationException("Пользователь уже является участником этого пространства");
 
@@ -101,6 +103,7 @@ namespace VirtualExcursion.BLL.services
 
         public async Task<bool> RemoveMember(int workspaceId, int userId)
         {
+            // Нельзя удалить владельца
             if (await _workspaceRepository.IsOwner(workspaceId, userId))
                 throw new InvalidOperationException("Нельзя удалить владельца пространства");
 

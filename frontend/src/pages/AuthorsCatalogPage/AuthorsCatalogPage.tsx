@@ -403,7 +403,7 @@ export const WorkspacesCatalogPage = () => {
                                 linkTo={`/author/${workspace.id}`}
                                 workspace={workspace}
                                 showStats={true}
-                            />
+                                    />
                         ))}
                     </div>
 

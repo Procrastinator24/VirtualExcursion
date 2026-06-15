@@ -7,8 +7,10 @@ import {
     Eye,
     BookOpen,
     Layers,
+    Users,
     FileText,
     Settings,
+    MoreHorizontal
 } from 'lucide-react';
 import { workspaceApi, type WorkspaceResponse } from '../../entities/workspace';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
@@ -149,8 +151,8 @@ export const WorkspacePage = () => {
                                             <div className="flex items-center gap-1">
                                                 <MapPin className="w-5 h-5 text-black"/>
                                                 <span className="text-black text-base font-semibold">
-                                        {workspace.address}
-                                    </span>
+                                                {workspace.address}
+                                            </span>
                                             </div>
                                         )}
                                         {workspace.website && (

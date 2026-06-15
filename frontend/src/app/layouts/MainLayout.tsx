@@ -8,7 +8,7 @@ export const MainLayout = () => {
     const { isCreateWorkspaceOpen, closeCreateWorkspace } = useModal();
 
     const handleWorkspaceCreated = () => {
-        // Обновить список пространств (можно через refetch или событие)
+        // �������� ������ ����������� (����� ����� refetch ��� �������)
         console.log('Workspace created, refresh list');
     };
     return (
@@ -19,7 +19,7 @@ export const MainLayout = () => {
             </main>
             <Footer/>
 
-            {/* Модалка создания пространства на уровне лейаута */}
+            {/* ������� �������� ������������ �� ������ ������� */}
             <WorkspaceCreateModal
                 isOpen={isCreateWorkspaceOpen}
                 onClose={closeCreateWorkspace}

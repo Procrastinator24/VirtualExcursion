@@ -19,7 +19,7 @@ namespace VirtualExcursion.BLL.DTO.mappings
             CreateMap<Excursion, ExcursionResponse>()
              .ForMember(dest => dest.workspaceName, opt => 
              opt.MapFrom(src => src.Workspace != null ? src.Workspace.Name : null))
-             
+
              
 
              .ForMember(dest => dest.Scenes,
@@ -33,10 +33,10 @@ namespace VirtualExcursion.BLL.DTO.mappings
                          SceneContentType = es.Scene.ContentType,
                          Order = es.Order
                      })))
-
+             
              .ForMember(dest => dest.ContentTypes,
                 opt => opt.MapFrom(src => GetContentTypes(src.ExcursionScenes)))
-
+             
              .ForMember(dest => dest.TagsNames,
                 opt => opt.MapFrom(src => src.ExcursionTags.Select(et => et.Tag.Name).ToList()))
              

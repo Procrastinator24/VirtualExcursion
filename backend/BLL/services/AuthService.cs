@@ -29,6 +29,7 @@ namespace VirtualExcursion.BLL.services
         private readonly IMapper _mapper;
         private readonly Random _random = new();
 
+        // Лимиты для безопасности
         private const int MaxCodeAttempts = 5;
         private static readonly ConcurrentDictionary<string, int> _failedAttempts = new();
         private static readonly ConcurrentDictionary<string, DateTime> _blockedUntil = new();
@@ -58,6 +59,7 @@ namespace VirtualExcursion.BLL.services
         {
             email = email.ToLowerInvariant();
 
+            // Проверка на блокировку
             if (_blockedUntil.TryGetValue(email, out var blockUntil) && blockUntil > DateTime.UtcNow)
             {
                 var remainingSeconds = (int)(blockUntil - DateTime.UtcNow).TotalSeconds;
@@ -76,6 +78,7 @@ namespace VirtualExcursion.BLL.services
             // Сохраняем код в кэш (живёт 5 минут)
             await _codeStorage.SaveCodeAsync(email, code, TimeSpan.FromMinutes(5));
 
+            // Отправляем код на email
             await _emailService.SendVerificationCodeAsync(email, code);
         }
 
@@ -102,6 +105,7 @@ namespace VirtualExcursion.BLL.services
 
             if (storedCode != code)
             {
+                // Увеличиваем счётчик неудачных попыток
                 var attempts = _failedAttempts.AddOrUpdate(email, 1, (_, count) => count + 1);
 
                 if (attempts >= MaxCodeAttempts)
@@ -114,6 +118,7 @@ namespace VirtualExcursion.BLL.services
                 throw new InvalidOperationException($"Неверный код. Осталось попыток: {MaxCodeAttempts - attempts}");
             }
 
+            // Код верный — очищаем счётчик попыток и удаляем использованный код
             _failedAttempts.TryRemove(email, out _);
             await _codeStorage.RemoveCodeAsync(email);
         }

@@ -348,7 +348,7 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
                     onClick={handleSave}
                     disabled={saving}
                     className="px-4 py-3 bg-black rounded-[5px] flex justify-center items-center gap-3 hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                    >
                     <span className="text-center justify-start text-white text-base font-medium font-['Inter'] leading-6">
                         {saving ? 'Сохранение...' : 'Сохранить изменения'}
                     </span>

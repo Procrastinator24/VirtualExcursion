@@ -523,11 +523,11 @@ export const CatalogPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                         {filteredExcursions.map((excursion) => (
                             <ExcursionCard
-                                key={excursion.id}
+                                    key={excursion.id}
                                 excursion={excursion}
                                 showGuideName={true}
-                            />
-                        ))}
+                                        />
+                                                ))}
                     </div>
 
                     {filteredExcursions.length === 0 && (

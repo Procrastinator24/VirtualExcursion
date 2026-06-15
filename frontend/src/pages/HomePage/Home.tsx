@@ -5,6 +5,8 @@ import { ImageWithFallback } from "@shared/ui/imgWrapper/ImageWithFallback.tsx";
 import {useEffect, useState} from "react";
 import {ExcursionCard, ExcursionResponse} from "../../entities/excursion";
 import {excursionApi} from "../../entities/excursion";
+import type {GuideProfileResponse} from "../../entities/guides";
+import {guideApi} from "../../entities/guides";
 import {GuideCard} from "../../entities/guides/ui/GuideCard.tsx";
 import {Scene, sceneApi, SceneCard} from "../../entities/scene";
 import type {WorkspaceResponse} from "../../entities/workspace";

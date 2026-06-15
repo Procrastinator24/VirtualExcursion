@@ -8,7 +8,7 @@ export const AppProviders = ({ children }: PropsWithChildren) => {
         <AuthProvider>
             <FavouritesProvider>
                 <ModalProvider>
-                    {children}
+                {children}
                 </ModalProvider>
             </FavouritesProvider>
         </AuthProvider>

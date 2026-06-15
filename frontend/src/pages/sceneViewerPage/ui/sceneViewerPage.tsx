@@ -13,6 +13,7 @@ import { SceneTypeBadge } from '@entities/sceneType';
 import type { ExcursionResponse } from '@entities/excursion/types/excursion';
 import type { ModelScene } from '@entities/scene';
 
+// Константы для типов контента
 const typeIcon: Record<string, React.ReactNode> = {
     vr: <Eye className="w-4 h-4" />,
     panorama: <Globe className="w-4 h-4" />,
@@ -41,9 +42,11 @@ export const SceneViewerPage = () => {
     const params = useParams();
     const { excursionId, sceneId } = params;
 
+    // Определяем режим: есть ли экскурсия
     const isInExcursion = !!excursionId && !!sceneId;
     const actualSceneId = isInExcursion ? parseInt(sceneId) : parseInt(params.sceneId!);
 
+    // Состояния
     const [excursion, setExcursion] = useState<ExcursionResponse | null>(null);
     const [sceneData, setSceneData] = useState<ModelScene | null>(null);
     const [currentSceneIndex, setCurrentSceneIndex] = useState(-1);
@@ -63,15 +66,18 @@ export const SceneViewerPage = () => {
             setIsModelLoaded(false);
 
             try {
+                // Загружаем сцену
                 const sceneDataRes = await sceneApi.getModelSceneById(actualSceneId);
                 // console.log('Scene data loaded:', sceneDataRes);
                 setSceneData(sceneDataRes);
 
+                // Если в контексте экскурсии — загружаем экскурсию
                 if (isInExcursion && excursionId) {
                     const excursionRes = await excursionApi.getById(parseInt(excursionId));
                     // console.log('Excursion data loaded:', excursionRes.data);
                     setExcursion(excursionRes.data);
 
+                    // Находим индекс текущей сцены в экскурсии
                     const index = excursionRes.data.scenes.findIndex(s => s.sceneId === actualSceneId);
                     setCurrentSceneIndex(index);
                 }
@@ -128,41 +134,41 @@ export const SceneViewerPage = () => {
 
             // console.log('Creating new Babylon engine with model:', sceneData.modelUrl);
 
-            const canvas = canvasRef.current;
-            const engine = new Engine(canvas, true);
-            engineRef.current = engine;
-            const scene = new BabylonScene(engine);
-            sceneRef.current = scene;
+        const canvas = canvasRef.current;
+        const engine = new Engine(canvas, true);
+        engineRef.current = engine;
+        const scene = new BabylonScene(engine);
+        sceneRef.current = scene;
 
-            const camera = new FlyCamera("FlyCamera", new Vector3(0, 5, -10), scene);
-            camera.attachControl(canvas, true);
+        const camera = new FlyCamera("FlyCamera", new Vector3(0, 5, -10), scene);
+        camera.attachControl(canvas, true);
 
-            const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-            light.intensity = 0.7;
+        const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+        light.intensity = 0.7;
 
-            const loadModel = async () => {
-                try {
+        const loadModel = async () => {
+            try {
                     // console.log('Loading model from:', sceneData.modelUrl);
-                    const result = await SceneLoader.ImportMeshAsync("", "", sceneData.modelUrl, scene);
+                const result = await SceneLoader.ImportMeshAsync("", "", sceneData.modelUrl, scene);
                     // console.log('Model loaded successfully, meshes:', result.meshes.length);
-                    setIsModelLoaded(true);
+                setIsModelLoaded(true);
 
-                    if (result.meshes.length > 0) {
-                        const boundingInfo = result.meshes[0].getBoundingInfo();
+                if (result.meshes.length > 0) {
+                    const boundingInfo = result.meshes[0].getBoundingInfo();
                         if (boundingInfo) {
                             camera.setTarget(boundingInfo.boundingBox.center);
                         }
-                    }
-                } catch (err) {
+                }
+            } catch (err) {
                     // console.error("Error loading model:", err);
                     setIsModelLoaded(false);
-                }
-            };
+            }
+        };
 
-            loadModel();
+        loadModel();
 
-            engine.runRenderLoop(() => scene.render());
-            window.addEventListener("resize", () => engine.resize());
+        engine.runRenderLoop(() => scene.render());
+        window.addEventListener("resize", () => engine.resize());
         }, 100);
 
         return () => {
@@ -296,6 +302,7 @@ export const SceneViewerPage = () => {
                                 {sceneData.description || 'Описание отсутствует'}
                             </p>
 
+                            {/* Metadata */}
                             <div className="space-y-2.5 mb-6 py-4 border-y border-stone-100">
                                 <div className="flex justify-between" style={{ fontSize: 13 }}>
                                     <span className="text-stone-400">Тип</span>

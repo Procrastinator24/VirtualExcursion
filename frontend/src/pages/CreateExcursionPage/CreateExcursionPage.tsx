@@ -112,7 +112,7 @@ export const CreateExcursionPage = () => {
                     workspaceId: workspaceIdNumber,
                 } as CreateExcursionRequest);
                 navigate(`/workspace/${workspaceIdNumber}`);
-            }
+        }
         } catch (error) {
             console.error('Failed to save draft:', error);
         } finally {
@@ -151,24 +151,24 @@ export const CreateExcursionPage = () => {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-64px)]">
                 <div className="animate-pulse text-stone-500">Загрузка данных экскурсии...</div>
-            </div>
+                </div>
         );
     }
 
-    return (
+        return (
         <div className="max-w-[1280px] mx-auto px-20 py-8">
             {/* Header with back button */}
             <div className="flex items-center gap-3 mb-8">
-                <button
+                    <button
                     onClick={handleBack}
                     className="p-1 hover:bg-stone-100 rounded-lg transition-colors"
-                >
+                                        >
                     <ArrowLeft className="w-5 h-5 text-stone-500" />
-                </button>
+                                            </button>
                 <h1 className="text-stone-900 text-2xl font-semibold">
                     {isEditMode ? 'Редактировать экскурсию' : 'Создать новую экскурсию'}
                 </h1>
-            </div>
+                    </div>
 
             <div className="flex gap-6">
                 <CreateExcursionTabs currentStep={currentStep} onStepChange={setCurrentStep} />
@@ -180,8 +180,8 @@ export const CreateExcursionPage = () => {
                             onChange={updateFormData}
                             onNext={handleNext}
                             isEditMode={isEditMode}
-                        />
-                    )}
+                                />
+                                )}
                     {currentStep === 'scenes' && (
                         <AddScenesStep
                             selectedSceneIds={formData.sceneIds}
@@ -190,7 +190,7 @@ export const CreateExcursionPage = () => {
                             onNext={handleNext}
                             onBack={handleBack}
                         />
-                    )}
+            )}
                     {currentStep === 'details' && (
                         <ExcursionDetailsStep
                             data={formData}
@@ -201,9 +201,9 @@ export const CreateExcursionPage = () => {
                             loading={loading}
                             isEditMode={isEditMode}
                         />
-                    )}
+                        )}
+                    </div>
                 </div>
-            </div>
         </div>
     );
 };

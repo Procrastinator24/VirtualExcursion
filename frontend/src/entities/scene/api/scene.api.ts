@@ -10,9 +10,9 @@ export const sceneApi = {
         return response
     },
     /**
-     * Загрузить 3D-модель на сервер
-     * @param file - файл модели (GLB/GLTF)
-     * @returns URL загруженного файла
+     * ��������� 3D-������ �� ������
+     * @param file - ���� ������ (GLB/GLTF)
+     * @returns URL ������������ �����
      */
     uploadModel: async (file: File): Promise<string> => {
         const formData = new FormData();
@@ -28,7 +28,7 @@ export const sceneApi = {
     },
 
     /**
-     * Загрузить изображение (обложку, превью) на сервер
+     * ��������� ����������� (�������, ������) �� ������
      */
     uploadImage: async (file: File): Promise<string> => {
         const formData = new FormData();

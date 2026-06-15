@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace VirtualExcursion.DAL.models
 {
+    public enum UserRole
+    {
+        User,      // обычный пользователь
+        Guide,     // гид (может создавать экскурсии)
+        Admin      // администратор
+    }
+
     public class User
     {
         [Key]

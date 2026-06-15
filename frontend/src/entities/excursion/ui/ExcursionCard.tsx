@@ -35,7 +35,7 @@ export const ExcursionCard = ({
 
                 {/* Бейджи в левом верхнем углу */}
                 <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                    {/* Бейдж типа контента */}
+                {/* Бейдж типа контента */}
                     {contentTypes.length > 0 && contentTypes.slice(0, 2).map((type) => (
                         <SceneTypeBadge key={type} type={type} size="sm" />
                     ))}
@@ -43,7 +43,7 @@ export const ExcursionCard = ({
                         <span className="px-1.5 py-0.5 bg-stone-800/70 text-white text-[10px] rounded-md">
                             +{contentTypes.length - 2}
                         </span>
-                    )}
+                )}
 
                     {/* Бейдж статуса публикации */}
                     {/*<span className={`px-2 py-0.5 rounded-md text-[10px] font-medium ${*/}
@@ -53,7 +53,7 @@ export const ExcursionCard = ({
                     {/*}`}>*/}
                     {/*    {excursion.isPublished ? 'Опубликовано' : 'Черновик'}*/}
                     {/*</span>*/}
-                </div>
+            </div>
             </div>
 
             {/* Контент */}
@@ -76,7 +76,7 @@ export const ExcursionCard = ({
                             <span className="text-stone-400 text-xs">+{excursion.tagsNames.length - 3}</span>
                         )}
                     </div>
-                )}
+                    )}
 
                 {/* Автор*/}
                 <div className="flex items-center gap-1 text-stone-400 text-xs mb-2">
