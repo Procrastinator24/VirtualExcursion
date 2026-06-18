@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MoreHorizontal, BookOpen, Layers, Users } from 'lucide-react';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
-import type { WorkspaceResponse } from '../../types/workspace';
+import { WorkspaceResponse } from '@entities/workspace';
 
 interface WorkspaceCardProps {
     workspace: WorkspaceResponse;

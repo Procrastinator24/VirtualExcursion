@@ -3,11 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import { X, Check } from 'lucide-react';
 import { excursionApi, ExcursionResponse } from '@entities/excursion';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
-import type { ExhibitFormData } from '../CreateExhibitPage';
+import type {CreateSceneRequest} from "../../../entities/scene/types/scene.ts";
 
 interface ExhibitDetailsStepProps {
-    data: ExhibitFormData;
-    onChange: (data: Partial<ExhibitFormData>) => void;
+    data: CreateSceneRequest;
+    onChange: (data: Partial<CreateSceneRequest>) => void;
     onSaveAsDraft: () => void;
     onPublish: () => void;
     onBack: () => void;
@@ -40,7 +40,7 @@ export const ExhibitDetailsStep = ({
     // Выбранные экскурсии (ID)
     const [selectedExcursionIds, setSelectedExcursionIds] = useState<number[]>(data.excursionIds || []);
     // Выбранные теги
-    const [selectedTags, setSelectedTags] = useState<Tag[]>(data.tags || []);
+    const [selectedTags, setSelectedTags] = useState<number[]>(data.tagIds || []);
 
     // Загрузка экскурсий пространства
     useEffect(() => {
@@ -76,7 +76,7 @@ export const ExhibitDetailsStep = ({
     useEffect(() => {
         onChange({
             excursionIds: selectedExcursionIds,
-            tags: selectedTags,
+            //tags: selectedTags,
         });
     }, [selectedExcursionIds, selectedTags]);
 
@@ -94,17 +94,17 @@ export const ExhibitDetailsStep = ({
 
         // Поиск существующего тега
         const existingTag = availableTags.find(t => t.name.toLowerCase() === trimmed.toLowerCase());
-        if (existingTag && !selectedTags.some(t => t.id === existingTag.id)) {
-            setSelectedTags([...selectedTags, existingTag]);
-        } else if (!selectedTags.some(t => t.name.toLowerCase() === trimmed.toLowerCase())) {
+        if (existingTag && !selectedTags.some(t => t === existingTag.id)) {
+            //setSelectedTags([...selectedTags, existingTag]);
+        } //else if (!selectedTags.some(t => t.name.toLowerCase() === trimmed.toLowerCase())) {
             // Временный тег (будет создан на сервере)
-            setSelectedTags([...selectedTags, { id: -Date.now(), name: trimmed }]);
-        }
+            //setSelectedTags([...selectedTags, { id: -Date.now(), name: trimmed }]);
+        //}
         setTagInput('');
     };
 
     const removeTag = (tagId: number) => {
-        setSelectedTags(prev => prev.filter(t => t.id !== tagId));
+        setSelectedTags(prev => prev.filter(t => t !== tagId));
     };
 
     const removeExcursion = (excursionId: number) => {
@@ -198,11 +198,11 @@ export const ExhibitDetailsStep = ({
                 <div className="mt-1 flex flex-wrap items-center gap-2 p-2 border border-stone-200 rounded-xl focus-within:border-stone-400">
                     {selectedTags.map((tag) => (
                         <span
-                            key={tag.id}
+                            key={tag}
                             className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-stone-300 text-stone-600 text-xs"
                         >
-                            {tag.name}
-                            <button onClick={() => removeTag(tag.id)} className="hover:text-red-500">
+                            {tag}
+                            <button onClick={() => removeTag(tag)} className="hover:text-red-500">
                                 <X className="w-3 h-3" />
                             </button>
                         </span>
@@ -217,7 +217,7 @@ export const ExhibitDetailsStep = ({
                     />
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1">
-                    {availableTags
+                    {/* {availableTags
                         .filter(t => !selectedTags.some(s => s.id === t.id))
                         .slice(0, 6)
                         .map((tag) => (
@@ -228,7 +228,7 @@ export const ExhibitDetailsStep = ({
                             >
                                 + {tag.name}
                             </button>
-                        ))}
+                        ))} */}
                 </div>
             </div>
 

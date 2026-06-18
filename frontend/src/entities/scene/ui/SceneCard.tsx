@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Clock, Eye } from 'lucide-react';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
-import { SceneTypeBadge } from '@entities/sceneType/ui/SceneTypeBadge';
+import { SceneTypeBadge } from '@entities/sceneType/ui/sceneTypeBadge';
 
 export interface SceneCardProps {
     id: number;

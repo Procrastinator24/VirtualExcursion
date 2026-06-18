@@ -22,7 +22,7 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<List<ModelScene>> Get()
         {
             return await _context.ModelScenes
-                .Include(m => m.Scene).ThenInclude(m => m.Author)
+                .Include(m => m.Scene).ThenInclude(m => m.Workspace)
                 .Include(m => m.PointsOfInterest)
                 .AsNoTracking()
                 .ToListAsync();
@@ -31,7 +31,7 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<ModelScene> GetById(int id)
         {
             return await _context.ModelScenes
-                .Include(m => m.Scene).ThenInclude(m => m.Author)
+                .Include(m => m.Scene).ThenInclude(m => m.Workspace)
                 .Include(m => m.PointsOfInterest)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
@@ -40,7 +40,7 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<ModelScene> GetBySceneId(int sceneId)
         {
             return await _context.ModelScenes
-                .Include(m => m.Scene).ThenInclude(m => m.Author)
+                .Include(m => m.Scene).ThenInclude(m => m.Workspace)
                 .Include(m => m.PointsOfInterest)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.SceneId == sceneId);

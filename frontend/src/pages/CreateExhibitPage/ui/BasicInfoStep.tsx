@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Image, Video, Globe, Box } from 'lucide-react';
-import type { ExhibitFormData, ContentType } from '../CreateExhibitPage';
+import type { SceneType } from '@entities/sceneType';
+import type { CreateSceneRequest } from '../../../entities/scene/types/scene';
+import { sceneApi } from '@entities/scene';
 
 interface BasicInfoStepProps {
-    data: ExhibitFormData;
-    onChange: (data: Partial<ExhibitFormData>) => void;
+    data: CreateSceneRequest;
+    onChange: (data: Partial<CreateSceneRequest>) => void;
     onNext: () => void;
 }
 
-const contentTypeOptions: { id: ContentType; label: string; icon: React.ReactNode; bgColor: string }[] = [
+const contentTypeOptions: { id: SceneType; label: string; icon: React.ReactNode; bgColor: string }[] = [
     { id: 'image', label: 'Фото', icon: <Image className="w-5 h-5" />, bgColor: 'bg-amber-100' },
     { id: 'video', label: 'Видео', icon: <Video className="w-5 h-5" />, bgColor: 'bg-rose-100' },
     { id: 'panorama', label: '360°', icon: <Globe className="w-5 h-5" />, bgColor: 'bg-sky-100' },
@@ -22,15 +24,35 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Проверка типа файла
+        if (!file.type.startsWith('image/')) {
+            alert('Пожалуйста, выберите изображение');
+            return;
+        }
+
+        // Проверка размера (макс 5 МБ)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Размер файла не должен превышать 5 МБ');
+            return;
+        }
+
         setUploading(true);
-        // TODO: загрузить файл через API
-        const mockUrl = URL.createObjectURL(file);
-        onChange({ thumbnailUrl: mockUrl });
-        setUploading(false);
+        try {
+            // Реальная загрузка на сервер
+            const url = await sceneApi.uploadImage(file);
+            onChange({ thumbnailUrl: url });
+        } catch (error) {
+            console.error('Failed to upload thumbnail:', error);
+            alert('Не удалось загрузить обложку');
+        } finally {
+            setUploading(false);
+        }
     };
 
-    const isSelected = (type: ContentType) => data.contentType === type;
-    const isValid = data.title.trim() && data.description.trim();
+    const isSelected = (type: SceneType) => data.contentType === type;
+
+    // Проверка на null/undefined
+    const isValid = data?.title?.trim() && data?.description?.trim();
 
     return (
         <div className="flex flex-col gap-6">
@@ -42,7 +64,7 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
                 </div>
                 <input
                     type="text"
-                    value={data.title}
+                    value={data?.title || ''}
                     onChange={(e) => onChange({ title: e.target.value })}
                     placeholder="Введите название экспоната"
                     className="w-full px-4 py-2.5 rounded-xl border border-stone-200 outline-none focus:border-stone-400 transition"
@@ -56,7 +78,7 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
                     <span className="text-red-600 text-base font-medium">*</span>
                 </div>
                 <textarea
-                    value={data.description}
+                    value={data?.description || ''}
                     onChange={(e) => onChange({ description: e.target.value })}
                     placeholder="Описание вашего проекта"
                     rows={4}
@@ -77,6 +99,7 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
                                     ? 'outline-2 outline-stone-900 bg-stone-50'
                                     : 'outline outline-1 outline-stone-200 hover:outline-stone-300'
                             }`}
+                            type="button"
                         >
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${option.bgColor}`}>
                                 {option.icon}
@@ -91,7 +114,7 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
             <div>
                 <span className="text-black text-base font-medium">Обложка</span>
                 <div className="mt-1 relative w-full h-40 rounded-2xl border-2 border-dashed border-stone-300 flex flex-col justify-center items-center gap-2 overflow-hidden">
-                    {data.thumbnailUrl ? (
+                    {data?.thumbnailUrl ? (
                         <>
                             <img
                                 src={data.thumbnailUrl}
@@ -100,13 +123,14 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
                             />
                             <button
                                 onClick={() => onChange({ thumbnailUrl: '' })}
-                                className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded"
+                                className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded hover:bg-black/70 transition"
+                                type="button"
                             >
                                 Удалить
                             </button>
                         </>
                     ) : (
-                        <label className="cursor-pointer flex flex-col items-center gap-2">
+                        <label className="cursor-pointer flex flex-col items-center gap-2 hover:opacity-70 transition">
                             <input
                                 type="file"
                                 accept="image/*"

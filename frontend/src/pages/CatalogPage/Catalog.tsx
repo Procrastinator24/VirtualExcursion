@@ -8,11 +8,10 @@ import type { ExcursionResponse } from '@entities/excursion/types/excursion';
 import {ExcursionCard} from "../../entities/excursion";
 
 // Типы для фильтров
-type ContentType = 'vr' | 'panorama' | 'video' | '3d' | 'image';
+type ContentType = | 'panorama' | 'video' | '3d' | 'image';
 type Period = 'Prehistoric' | 'Ancient' | 'Medieval' | 'Renaissance' | 'Baroque' | 'Gothic';
 
 const contentTypeLabels: Record<ContentType, string> = {
-    vr: 'VR',
     panorama: '360°',
     video: 'Video',
     '3d': '3D Модель',
@@ -20,7 +19,6 @@ const contentTypeLabels: Record<ContentType, string> = {
 };
 
 const contentTypeColors: Record<ContentType, string> = {
-    vr: 'bg-purple-100 text-purple-700',
     panorama: 'bg-blue-100 text-blue-700',
     video: 'bg-red-100 text-red-700',
     '3d': 'bg-emerald-100 text-emerald-700',
@@ -157,11 +155,11 @@ export const CatalogPage: React.FC = () => {
         }
 
         // Фильтр по типу контента
-        if (selectedTypes.length > 0) {
-            result = result.filter(ex =>
-                ex.contentType && selectedTypes.includes(ex.contentType as ContentType)
-            );
-        }
+        // if (selectedTypes.length > 0) {
+        //     result = result.filter(ex =>
+        //         ex.contentTypes && selectedTypes.includes(ex.contentTypes)
+        //     );
+        // }
 
         // Фильтр по региону (заглушка)
         if (selectedRegions.length > 0) {

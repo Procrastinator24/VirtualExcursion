@@ -21,7 +21,7 @@ namespace VirtualExcursion.BLL.services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IGuideProfileRepository _guideProfileRepository;
+        //private readonly IGuideProfileRepository _guideProfileRepository;
         private readonly IPasswordHashingService _passwordHasher;
         private readonly IVerificationCodeStorage _codeStorage;
         private readonly IEmailService _emailService;
@@ -36,7 +36,6 @@ namespace VirtualExcursion.BLL.services
 
         public AuthService(
             IUserRepository userRepository,
-            IGuideProfileRepository guideProfileRepository,
             IPasswordHashingService passwordHasher,
             IVerificationCodeStorage codeStorage,
             IEmailService emailService,
@@ -44,7 +43,6 @@ namespace VirtualExcursion.BLL.services
             IMapper mapper)
         {
             _userRepository = userRepository;
-            _guideProfileRepository = guideProfileRepository;
             _passwordHasher = passwordHasher;
             _codeStorage = codeStorage;
             _emailService = emailService;

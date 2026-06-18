@@ -80,7 +80,7 @@ namespace VirtualExcursion.DAL.Repositories
             existing.DescriptionShort = workspace.DescriptionShort;
             //existing.DescriptionLong = workspace.DescriptionLong;
             existing.LogoUrl = workspace.LogoUrl;
-            //existing.Type = workspace.Type;
+            existing.BannerUrl = workspace.BannerUrl;
             existing.Website = workspace.Website;
             existing.ContactEmail = workspace.ContactEmail;
             existing.Phone = workspace.Phone;

@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { X, Upload, Trash2 } from 'lucide-react';
 import { workspaceApi } from '@entities/workspace';
-import { Modal } from '@shared/ui/Modal/Modal';
-import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
+import { Modal } from '@shared/ui/modal/Modal';
 
 interface WorkspaceCreateModalProps {
     isOpen: boolean;
@@ -134,7 +132,7 @@ export const WorkspaceCreateModal = ({ isOpen, onClose, onSuccess }: WorkspaceCr
     const isValid = formData.name.trim() && formData.descriptionShort.trim();
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Создание пространства" size="2xl">
+        <Modal isOpen={isOpen} onClose={onClose} title="Создание пространства" size="xl">
             <div className="inline-flex flex-col justify-start items-start gap-5 w-full">
                 {/* Основная информация */}
                 <div className="self-stretch flex flex-col justify-start items-start gap-1">

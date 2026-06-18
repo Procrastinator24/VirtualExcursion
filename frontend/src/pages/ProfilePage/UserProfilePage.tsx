@@ -83,13 +83,13 @@ export const UserProfilePage = () => {
                 <div className="flex flex-col md:flex-row items-start gap-6">
                     <AvatarUpload
                         currentAvatarUrl={user.avatarUrl}
-                        userName={user.userName}
+                        userName={user.name}
                         onAvatarUpdate={handleAvatarUpdate}
                         />
 
                     <div className="flex-1">
                         <h1 className="text-stone-900" style={{ fontSize: 26, fontWeight: 600 }}>
-                            {user.userName}
+                            {user.name}
                         </h1>
                         <span className="text-stone-500" style={{ fontSize: 14 }}>
                             {user.email}
@@ -112,7 +112,7 @@ export const UserProfilePage = () => {
                 ] as const).map((t) => (
                     <button
                         key={t.key}
-                        onClick={() => setTab(t.key)}
+                        onClick={() => setTab(t.key as TabType)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-colors ${
                             tab === t.key
                                 ? "bg-stone-900 text-white"
@@ -132,9 +132,6 @@ export const UserProfilePage = () => {
                         <ExcursionCard
                             key={ex.id}
                             excursion={ex}
-                            showFavouriteButton
-                            onFavouriteToggle={() => toggleFavourite(ex.id)}
-                            isFavourite={true}
                         />
                     ))}
                     {((tab === "favorites" && favoriteExcursions.length === 0)) && (
@@ -146,7 +143,7 @@ export const UserProfilePage = () => {
             )}
 
 
-            {tab === "workspaces" && (
+            {tab === "workspaces" as TabType && (
                 <div>
                     {/* Заголовок и кнопка */}
                     <div className="flex items-center justify-between mb-5">
@@ -210,8 +207,8 @@ export const UserProfilePage = () => {
                         {[
                             { label: "Имя", name: "name", value: user.name },
                             { label: "Email", name: "email", value: user.email },
-                            { label: "О себе", name: "bio", value: user.bio || "" },
-                            { label: "Организация", name: "institution", value: user.institution || "" },
+                            // { label: "О себе", name: "bio", value: user.bio || "" },
+
                         ].map((field) => (
                             <div key={field.name}>
                                 <label className="text-stone-500 block mb-1.5" style={{ fontSize: 13 }}>

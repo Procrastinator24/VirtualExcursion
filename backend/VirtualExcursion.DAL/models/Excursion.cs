@@ -41,7 +41,7 @@ namespace VirtualExcursion.DAL.models
 
         // Navigation properties
         public virtual Workspace Workspace { get; set; }
-        public virtual GuideProfile? GuideProfile { get; set; }
+        //public virtual GuideProfile? GuideProfile { get; set; }
         public virtual ICollection<ExcursionScene> ExcursionScenes { get; set; } = new List<ExcursionScene>();
         public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
         public virtual ICollection<ExcursionTag> ExcursionTags { get; set; } = new List<ExcursionTag>();

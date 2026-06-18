@@ -53,7 +53,7 @@ namespace VirtualExcursion.BLL.services
         }
 
 
-        public async Task<ExcursionResponse> Create(CreateExcursionRequest request, int guideProfileId)
+        public async Task<ExcursionResponse> Create(CreateExcursionRequest request, int userId)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { workspaceApi, WorkspaceResponse } from '@entities/workspace';
 import { excursionApi, ExcursionResponse } from '@entities/excursion';
-import { sceneApi, SceneResponse } from '@entities/scene';
+import { sceneApi, Scene } from '@entities/scene';
 import { WorkspaceHeader } from './WorkspaceHeader';
 import { ExcursionsSection } from './ExcursionSection';
 import { ExhibitsSection } from './ExhibitsSection';
@@ -12,7 +12,7 @@ export const WorkspacePublicPage = () => {
     const { id } = useParams<{ id: string }>();
     const [workspace, setWorkspace] = useState<WorkspaceResponse | null>(null);
     const [excursions, setExcursions] = useState<ExcursionResponse[]>([]);
-    const [exhibits, setExhibits] = useState<SceneResponse[]>([]);
+    const [exhibits, setExhibits] = useState<Scene[]>([]);
     const [loading, setLoading] = useState(true);
     const [excursionsLimit, setExcursionsLimit] = useState(4);
     const [exhibitsLimit, setExhibitsLimit] = useState(20);
@@ -29,7 +29,7 @@ export const WorkspacePublicPage = () => {
                 const workspaceRes = await workspaceApi.getById(workspaceId);
                 setWorkspace(workspaceRes.data);
 
-                const excursionsRes = await excursionApi.getByWorkspaceId(workspaceId, true);
+                const excursionsRes = await excursionApi.getByWorkspaceId(workspaceId);
                 setExcursions(excursionsRes.data);
 
                 const exhibitsRes = await sceneApi.getByWorkspaceId(workspaceId, true);

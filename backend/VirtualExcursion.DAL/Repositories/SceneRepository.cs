@@ -17,18 +17,36 @@ namespace VirtualExcursion.DAL.Repositories
             _context = context;
         }
 
-        public async Task<List<Scene>> Get()
+        public async Task<List<Scene>> Get(bool onlyPublished)
         {
             return await _context.Scenes
-                .Include(m => m.SceneTags)
+                .Where(s => (onlyPublished ? s.IsPublished : true))
+                .Include(s => s.ModelScene)
+                .Include(s => s.ImageScene)
+                .Include(s => s.VideoScene)
+                .Include(s => s.PanoramaScene)
+                .Include(s => s.PointsOfInterest)
+                .Include(s => s.SceneTags)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+        public async Task<Scene> Create(Scene scene)
+        {
+            scene.CreatedAt = DateTime.UtcNow;
+            await _context.Scenes.AddAsync(scene);
+            await _context.SaveChangesAsync();
+            return scene;
         }
 
         public async Task<Scene> GetById(int id)
         {
             return await _context.Scenes
-                .Include(m => m.SceneTags)
+                .Include(s => s.ModelScene)
+                .Include(s => s.ImageScene)
+                .Include(s => s.VideoScene)
+                .Include(s => s.PanoramaScene)
+                .Include(s => s.PointsOfInterest)
+                .Include(s => s.SceneTags)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
@@ -44,13 +62,19 @@ namespace VirtualExcursion.DAL.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
-        public async Task<List<Scene>> GetByGuideProfileId(int guideProfileId)
+        public async Task<Scene?> GetByIdWithDetails(int id)
         {
             return await _context.Scenes
-                .Where(s => s.AuthorId == guideProfileId)
-                .Include(s => s.PointsOfInterest)
-                .AsNoTracking()
-                .ToListAsync();
+                .Include(s => s.ModelScene)
+                    .ThenInclude(m => m.PointsOfInterest)
+                .Include(s => s.ImageScene)
+                .Include(s => s.VideoScene)
+                .Include(s => s.PanoramaScene)
+                .Include(s => s.SceneTags)
+                    .ThenInclude(st => st.Tag)
+                .Include(s => s.ExcursionScenes)
+                    .ThenInclude(es => es.Excursion)
+                .FirstOrDefaultAsync(s => s.Id == id);
         }
     }
 }

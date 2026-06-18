@@ -13,12 +13,12 @@ interface ExcursionCardProps {
 export const ExcursionCard = ({
                                   excursion,
                                   linkTo,
-                                  showGuideName = true
+                                  
                               }: ExcursionCardProps) => {
     const link = linkTo || `/excursion/${excursion.id}`;
 
     // Определяем тип контента (один или несколько)
-    const contentTypes = excursion.contentTypes || (excursion.contentType ? [excursion.contentType] : []);
+    const contentTypes = excursion.contentTypes || (excursion.contentTypes ? [excursion.contentTypes] : []);
 
     return (
         <Link

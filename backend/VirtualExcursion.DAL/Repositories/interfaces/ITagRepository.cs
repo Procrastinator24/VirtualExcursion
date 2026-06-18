@@ -12,6 +12,20 @@ namespace VirtualExcursion.DAL.Repositories.interfaces
         Task<List<Tag>> Get();
         Task<Tag> GetById(int id);
         Task<Tag> GetBySlug(string slug);
+        /// <summary>
+        /// Добавить тег к сцене
+        /// </summary>
+        Task AddToScene(int sceneId, int tagId);
+
+        /// <summary>
+        /// Удалить тег у сцены
+        /// </summary>
+        Task RemoveFromScene(int sceneId, int tagId);
+
+        /// <summary>
+        /// Получить все теги сцены
+        /// </summary>
+        Task<List<Tag>> GetTagsForScene(int sceneId);
         Task<Tag> Create(Tag tag);
         Task<Tag> Update(Tag tag);
         Task<bool> Delete(int id);

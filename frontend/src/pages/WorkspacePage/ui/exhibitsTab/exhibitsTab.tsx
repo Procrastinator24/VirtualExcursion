@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { sceneApi } from '../../../../entities/scene';
-import { ExhibitsTable } from './ExhibitsTable';
-import type { Scene } from '@entities/scene/types';
+import { ExhibitsTable } from './exhibitsTable.tsx';
+import type { Scene } from '@entities/scene';
 
 interface ExhibitsTabProps {
     workspaceId: number;

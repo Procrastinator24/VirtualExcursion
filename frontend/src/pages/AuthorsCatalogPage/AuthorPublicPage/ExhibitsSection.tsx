@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
-import { SceneTypeBadge } from '@entities/scenetype/ui/SceneTypeBadge';
-import type { Scene } from '@entities/scene/types';
+import { SceneTypeBadge } from '@entities/sceneType';
+import type { Scene } from '@entities/scene';
 
 interface ExhibitsSectionProps {
     exhibits: Scene[];

@@ -8,16 +8,16 @@ using VirtualExcursion.DAL.models;
 
 namespace VirtualExcursion.DAL.Repositories.interfaces
 {
-    public interface IGuideProfileRepository
-    {
-        Task<List<GuideProfile>> Get();
-        Task<List<GuideProfile>> Get(Expression<Func<GuideProfile, bool>> predicate);
-        Task<GuideProfile> GetById(int id);
-        Task<GuideProfile> GetByUserId(int userId);
-        Task<GuideProfile> Create(GuideProfile guideProfile);
-        Task<GuideProfile> Update(GuideProfile guideProfile);
-        Task<bool> Delete(int id);
-        Task<bool> Exists(int id);
-        Task<bool> ExistsByUserId(int userId, int? excludeId = null);
-    }
+    //public interface IGuideProfileRepository
+    //{
+    //    Task<List<GuideProfile>> Get();
+    //    Task<List<GuideProfile>> Get(Expression<Func<GuideProfile, bool>> predicate);
+    //    Task<GuideProfile> GetById(int id);
+    //    Task<GuideProfile> GetByUserId(int userId);
+    //    Task<GuideProfile> Create(GuideProfile guideProfile);
+    //    Task<GuideProfile> Update(GuideProfile guideProfile);
+    //    Task<bool> Delete(int id);
+    //    Task<bool> Exists(int id);
+    //    Task<bool> ExistsByUserId(int userId, int? excludeId = null);
+    //}
 }

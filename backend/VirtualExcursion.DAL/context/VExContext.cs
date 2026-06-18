@@ -20,11 +20,12 @@ namespace VirtualExcursion.DAL.context
        
 
         public DbSet<User> Users { get; set; }
-        public DbSet<GuideProfile> GuideProfiles { get; set; }
+        //public DbSet<GuideProfile> GuideProfiles { get; set; }
         public DbSet<Scene> Scenes { get; set; }
         public DbSet<ModelScene> ModelScenes { get; set; }
-        //public DbSet<PhotoScene> PhotoScenes { get; set; }
-        //public DbSet<VideoScene> VideoScenes { get; set; }
+        public DbSet<ImageScene> ImageScenes { get; set; }
+        public DbSet<VideoScene> VideoScenes { get; set; }
+        public DbSet<PanoramaScene> PanoramaScenes { get; set; }
         public DbSet<POI> PointsOfInterest { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<SceneTag> SceneTags { get; set; }
@@ -38,6 +39,25 @@ namespace VirtualExcursion.DAL.context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            // Scene → ThreeDScene (1:1)
+            modelBuilder.Entity<ModelScene>()
+                .HasOne(t => t.Scene)
+                .WithOne(s => s.ModelScene)
+                .HasForeignKey<ModelScene>(t => t.SceneId)
+                .OnDelete(DeleteBehavior.Cascade);  // ← каскадное удаление
+
+            // Scene → PointsOfInterest (1:N)
+            modelBuilder.Entity<POI>()
+                .HasOne(p => p.Scene)
+                .WithMany(s => s.PointsOfInterest)
+                .HasForeignKey(p => p.SceneId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Scene → Tags (M:N через SceneTag)
+            modelBuilder.Entity<SceneTag>()
+                .HasKey(st => new { st.SceneId, st.TagId });
 
             // Workspace
             modelBuilder.Entity<Workspace>(entity =>
@@ -140,12 +160,12 @@ namespace VirtualExcursion.DAL.context
 
             // ==================== GuideProfile & Scene ====================
 
-            // GuideProfile → Scene (один-ко-многим)
-            modelBuilder.Entity<GuideProfile>()
-                .HasMany(g => g.Scenes)
-                .WithOne(s => s.Author)
-                .HasForeignKey(s => s.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict); // Не удаляем сцены при удалении профиля
+            //// GuideProfile → Scene (один-ко-многим)
+            //modelBuilder.Entity<GuideProfile>()
+            //    .HasMany(g => g.Scenes)
+            //    .WithOne(s => s.Author)
+            //    .HasForeignKey(s => s.AuthorId)
+            //    .OnDelete(DeleteBehavior.Restrict); // Не удаляем сцены при удалении профиля
 
             // ==================== Scene & ModelScene ====================
 
@@ -277,9 +297,9 @@ namespace VirtualExcursion.DAL.context
                 .Property(u => u.Username)
                 .HasMaxLength(100);
 
-            modelBuilder.Entity<GuideProfile>()
-                .Property(g => g.OrganizationName)
-                .HasMaxLength(200);
+            //modelBuilder.Entity<GuideProfile>()
+            //    .Property(g => g.OrganizationName)
+            //    .HasMaxLength(200);
 
             modelBuilder.Entity<Scene>()
                 .Property(s => s.Title)

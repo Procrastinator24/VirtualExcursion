@@ -2,9 +2,10 @@ export interface User{
     id: number
     email: string
     name: string
-    avatarUrl: string;
+    avatarUrl?: string;
 }
 export interface LoginResponse{
+    accessToken: string;
     id: number
     email: string
     name: string

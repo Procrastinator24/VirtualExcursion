@@ -1,210 +1,170 @@
 import { useState } from 'react';
-import { Plus, Trash2, Edit3 } from 'lucide-react';
-import type { ExhibitFormData } from '../CreateExhibitPage';
-import {sceneApi} from "../../../entities/scene";
-
-export interface PointOfInterest {
-    id: string;
-    name: string;
-    description: string;
-    x: number;
-    y: number;
-    z: number;
-    imageUrl?: string;
-}
+import { sceneApi } from '@entities/scene';
+import type {ContentType, CreatePointOfInterestRequest} from '../../../entities/scene/types/scene.ts';
+import type {CreateSceneRequest} from "../../../entities/scene/types/scene.ts";
 
 interface UploadMaterialStepProps {
-    data: ExhibitFormData;
-    onChange: (data: Partial<ExhibitFormData>) => void;
+    data: CreateSceneRequest;
+    onChange: (data: Partial<CreateSceneRequest>) => void;
     onNext: () => void;
     onBack: () => void;
 }
 
+// Конфигурация для разных типов контента
+const uploadConfig: Record<ContentType, {
+    title: string;
+    accept: string;
+    maxSize: number;
+    supportedFormats: string;
+    isFileRequired: boolean;
+}> = {
+    '3d': {
+        title: 'Загрузка 3D-модели',
+        accept: '.glb,.gltf,.obj,.fbx,.stl',
+        maxSize: 500 * 1024 * 1024, // 500 MB
+        supportedFormats: 'GLB, GLTF, OBJ, FBX, STL',
+        isFileRequired: true,
+    },
+    image: {
+        title: 'Загрузка фото',
+        accept: 'image/jpeg,image/png,image/webp',
+        maxSize: 50 * 1024 * 1024, // 50 MB
+        supportedFormats: 'JPG, PNG, WEBP',
+        isFileRequired: true,
+    },
+    video: {
+        title: 'Загрузка видео',
+        accept: 'video/mp4,video/webm,video/ogg',
+        maxSize: 500 * 1024 * 1024, // 500 MB
+        supportedFormats: 'MP4, WEBM, OGG',
+        isFileRequired: true,
+    },
+    panorama: {
+        title: 'Загрузка панорамы',
+        accept: 'image/jpeg,image/png,image/webp',
+        maxSize: 50 * 1024 * 1024, // 50 MB
+        supportedFormats: 'JPG, PNG, WEBP',
+        isFileRequired: true,
+    },
+};
+
 export const UploadMaterialStep = ({ data, onChange, onNext, onBack }: UploadMaterialStepProps) => {
     const [uploading, setUploading] = useState(false);
-    const [editingPoint, setEditingPoint] = useState<PointOfInterest | null>(null);
-    const [showPointForm, setShowPointForm] = useState(false);
+    const contentType = data.contentType || '3d';
+    const config = uploadConfig[contentType];
 
-    // Точки интереса из formData или пустой массив
-    const pointsOfInterest: PointOfInterest[] = data.pointsOfInterest || [];
+    // Определяем, есть ли уже загруженный файл
+    const hasFile = contentType === '3d' ? !!data.modelUrl : !!data.mediaUrl;
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Проверка типа файла
-        const allowedExtensions = ['.glb', '.gltf', '.obj', '.fbx', '.stl'];
-        const extension = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-        if (!allowedExtensions.includes(extension)) {
-            console.error('Неподдерживаемый формат файла');
-            return;
-        }
-
-        // Проверка размера (до 500 МБ)
-        if (file.size > 500 * 1024 * 1024) {
-            console.error('Файл превышает максимальный размер (500 МБ)');
+        // Проверка размера
+        if (file.size > config.maxSize) {
+            alert(`Файл слишком большой. Максимальный размер: ${config.maxSize / (1024 * 1024)} MB`);
             return;
         }
 
         setUploading(true);
 
         try {
-            // Загружаем файл на сервер
-            const modelUrl = await sceneApi.uploadModel(file);
+            let uploadedUrl: string;
 
-            // Обновляем formData
-            onChange({
-                modelUrl,
-                modelFormat: extension.replace('.', '').toUpperCase(),
-            });
-
-            console.log('Модель загружена:', modelUrl);
+            if (contentType === '3d') {
+                uploadedUrl = await sceneApi.uploadModel(file);
+                onChange({ modelUrl: uploadedUrl, modelFormat: 'glb default' });
+            } if (contentType === 'video') {
+                uploadedUrl = await sceneApi.uploadVideo(file);
+                onChange({ mediaUrl: uploadedUrl });
+            }
+            else {
+                uploadedUrl = await sceneApi.uploadImage(file);
+                onChange({ mediaUrl: uploadedUrl });
+            }
         } catch (error) {
-            console.error('Ошибка загрузки модели:', error);
+            console.error('Upload failed:', error);
+
         } finally {
             setUploading(false);
         }
     };
 
-    const addPoint = (point: PointOfInterest) => {
-        const newPoints = [...pointsOfInterest, point];
-        onChange({ pointsOfInterest: newPoints });
-    };
-
-    const updatePoint = (id: string, updatedPoint: PointOfInterest) => {
-        const newPoints = pointsOfInterest.map(p => p.id === id ? updatedPoint : p);
-        onChange({ pointsOfInterest: newPoints });
-    };
-
-    const deletePoint = (id: string) => {
-        const newPoints = pointsOfInterest.filter(p => p.id !== id);
-        onChange({ pointsOfInterest: newPoints });
-    };
-
-    const handleSavePoint = (point: PointOfInterest) => {
-        if (pointsOfInterest.some(p => p.id === point.id)) {
-            updatePoint(point.id, point);
+    const handleRemoveFile = () => {
+        if (contentType === '3d') {
+            onChange({ modelUrl: undefined });
         } else {
-            addPoint(point);
+            onChange({ mediaUrl: undefined });
         }
-        setShowPointForm(false);
-        setEditingPoint(null);
     };
 
-    const handleEditPoint = (point: PointOfInterest) => {
-        setEditingPoint(point);
-        setShowPointForm(true);
-    };
+    const fileUrl = contentType === '3d' ? data.modelUrl : data.mediaUrl;
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Загрузка 3D-модели */}
             <div>
-                <h2 className="text-stone-900 text-lg font-semibold mb-2">Загрузка 3D-модели</h2>
-                <div className="border-2 border-dashed border-stone-300 rounded-2xl p-8 text-center hover:border-stone-400 transition cursor-pointer">
-                    <input
-                        type="file"
-                        accept=".glb,.gltf,.obj,.fbx,.stl"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="model-upload"
+                <h2 className="text-stone-900 text-lg font-semibold mb-2">{config.title}</h2>
+                <p className="text-stone-500 text-sm mb-4">
+                    Вы выбрали тип: <span className="font-medium text-stone-700">
+                        {contentType === '3d' && '3D-модель'}
+                    {contentType === 'image' && 'Изображение'}
+                    {contentType === 'video' && 'Видео'}
+                    {contentType === 'panorama' && '360° панорама'}
+                    </span>
+                </p>
+
+                <div className="mt-4">
+                    <div className="border-2 border-dashed border-stone-300 rounded-2xl p-8 text-center hover:border-stone-400 transition cursor-pointer">
+                        <input
+                            type="file"
+                            accept={config.accept}
+                            onChange={handleFileUpload}
+                            className="hidden"
+                            id="material-upload"
+                        />
+                        <label htmlFor="material-upload" className="cursor-pointer block">
+                            {fileUrl ? (
+                                <div className="text-green-600">
+                                    Файл загружен: {fileUrl.split('/').pop()}
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleRemoveFile();
+                                        }}
+                                        className="ml-3 text-red-500 text-sm hover:underline"
+                                    >
+                                        Удалить
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-2">
+                                    <div className="w-12 h-12 text-stone-400">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                            <path d="M12 4v16m8-8H4" stroke="currentColor" />
+                                        </svg>
+                                    </div>
+                                    <div className="text-stone-600 text-base font-medium">
+                                        {uploading ? 'Загрузка...' : 'Перетащите или загрузите файл с устройства'}
+                                    </div>
+                                    <div className="text-stone-400 text-xs">
+                                        Поддерживаются: {config.supportedFormats} до {config.maxSize / (1024 * 1024)} МБ
+                                    </div>
+                                </div>
+                            )}
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            {/* Точки интереса (только для 3D-моделей) */}
+            {contentType === '3d' && (
+                <div className="mt-6">
+                    <h3 className="text-stone-800 font-semibold mb-3">Список добавленных точек интереса</h3>
+                    <PointsOfInterestList
+                        points={data.pointsOfInterest || []}
+                        onChange={(points) => onChange({ pointsOfInterest: points })}
                     />
-                    <label htmlFor="model-upload" className="cursor-pointer block">
-                        {data.modelUrl ? (
-                            <div className="text-green-600">
-                                Файл загружен: {data.modelUrl.split('/').pop()}
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        onChange({ modelUrl: undefined });
-                                    }}
-                                    className="ml-3 text-red-500 text-sm hover:underline"
-                                >
-                                    Удалить
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center gap-2">
-                                <div className="w-16 h-16 text-stone-400">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                        <path d="M12 4v16m8-8H4" stroke="currentColor" />
-                                    </svg>
-                                </div>
-                                <div className="text-stone-600 text-base font-medium">
-                                    {uploading ? 'Загрузка...' : 'Перетащите или загрузите файл с устройства'}
-                                </div>
-                                <div className="text-stone-400 text-xs">
-                                    Поддерживаются: GLB, GLTF, OBJ, FBX, STL до 500 МБ
-                                </div>
-                            </div>
-                        )}
-                    </label>
                 </div>
-            </div>
-
-            {/* Точки интереса */}
-            <div>
-                <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-stone-800 font-semibold">Список добавленных точек интереса</h3>
-                    <button
-                        onClick={() => {
-                            setEditingPoint(null);
-                            setShowPointForm(true);
-                        }}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-stone-100 rounded-lg text-stone-700 text-sm hover:bg-stone-200 transition"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Добавить точку
-                    </button>
-                </div>
-
-                <div className="space-y-3">
-                    {pointsOfInterest.map((point) => (
-                        <div
-                            key={point.id}
-                            className="p-3 bg-white rounded-xl border border-stone-200 flex justify-between items-center hover:border-stone-300 transition"
-                        >
-                            <div>
-                                <div className="text-stone-800 font-medium">{point.name}</div>
-                                <div className="text-stone-400 text-xs">
-                                    X: {point.x}, Y: {point.y}, Z: {point.z}
-                                </div>
-                            </div>
-                            <div className="flex gap-1">
-                                <button
-                                    onClick={() => handleEditPoint(point)}
-                                    className="p-1.5 rounded-lg hover:bg-stone-100 transition"
-                                >
-                                    <Edit3 className="w-4 h-4 text-stone-500" />
-                                </button>
-                                <button
-                                    onClick={() => deletePoint(point.id)}
-                                    className="p-1.5 rounded-lg hover:bg-stone-100 transition"
-                                >
-                                    <Trash2 className="w-4 h-4 text-stone-500" />
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-
-                    {pointsOfInterest.length === 0 && (
-                        <div className="text-center py-8 text-stone-400 bg-stone-50 rounded-xl">
-                            Нет добавленных точек интереса
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Форма добавления/редактирования точки интереса */}
-            {showPointForm && (
-                <PointForm
-                    initialPoint={editingPoint}
-                    onSave={handleSavePoint}
-                    onCancel={() => {
-                        setShowPointForm(false);
-                        setEditingPoint(null);
-                    }}
-                />
             )}
 
             <div className="flex justify-between mt-4">
@@ -216,7 +176,7 @@ export const UploadMaterialStep = ({ data, onChange, onNext, onBack }: UploadMat
                 </button>
                 <button
                     onClick={onNext}
-                    disabled={!data.modelUrl}
+                    disabled={config.isFileRequired && !fileUrl}
                     className="px-6 py-2.5 bg-stone-900 text-white rounded-xl font-medium hover:bg-stone-800 disabled:opacity-50 transition"
                 >
                     Продолжить
@@ -226,15 +186,112 @@ export const UploadMaterialStep = ({ data, onChange, onNext, onBack }: UploadMat
     );
 };
 
-// Компонент формы для точки интереса
-interface PointFormProps {
-    initialPoint: PointOfInterest | null;
-    onSave: (point: PointOfInterest) => void;
-    onCancel: () => void;
+// Компонент для точек интереса (вынесен отдельно)
+interface PointsOfInterestListProps {
+    points: CreatePointOfInterestRequest[];
+    onChange: (points: CreatePointOfInterestRequest[]) => void;
 }
 
-const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
-    const [point, setPoint] = useState<PointOfInterest>(
+
+const PointsOfInterestList = ({ points, onChange }: PointsOfInterestListProps) => {
+    const [editingPoint, setEditingPoint] = useState<CreatePointOfInterestRequest | null>(null);
+    const [showPointForm, setShowPointForm] = useState(false);
+
+    const addPoint = (point: CreatePointOfInterestRequest) => {
+        onChange([...points, point]);
+    };
+
+    const updatePoint = (id: string, updatedPoint: CreatePointOfInterestRequest) => {
+        onChange(points.map(p => p.id === id ? updatedPoint : p));
+    };
+
+    const deletePoint = (id: string) => {
+        onChange(points.filter(p => p.id !== id));
+    };
+
+    const handleSavePoint = (point: CreatePointOfInterestRequest) => {
+        if (points.some(p => p.id === point.id)) {
+            updatePoint(point.id, point);
+        } else {
+            addPoint(point);
+        }
+        setShowPointForm(false);
+        setEditingPoint(null);
+    };
+
+    return (
+        <div className="space-y-3">
+            {points.map((point) => (
+                <div
+                    key={point.id}
+                    className="p-3 bg-white rounded-xl border border-stone-200 flex justify-between items-center hover:border-stone-300 transition"
+                >
+                    <div>
+                        <div className="text-stone-800 font-medium">{point.title}</div>
+                        <div className="text-stone-400 text-xs">
+                            X: {point.x}, Y: {point.y}, Z: {point.z}
+                        </div>
+                    </div>
+                    <div className="flex gap-1">
+                        <button
+                            onClick={() => {
+                                setEditingPoint(point);
+                                setShowPointForm(true);
+                            }}
+                            className="p-1.5 rounded-lg hover:bg-stone-100 transition"
+                        >
+                            <svg className="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={() => deletePoint(point.id)}
+                            className="p-1.5 rounded-lg hover:bg-stone-100 transition"
+                        >
+                            <svg className="w-4 h-4 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            ))}
+
+            {points.length === 0 && (
+                <div className="text-center py-8 text-stone-400 bg-stone-50 rounded-xl">
+                    Нет добавленных точек интереса
+                </div>
+            )}
+
+            <button
+                onClick={() => {
+                    setEditingPoint(null);
+                    setShowPointForm(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-lg text-stone-800 hover:bg-gray-300 transition"
+            >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Добавить точку
+            </button>
+
+            {showPointForm && (
+                <PointForm
+                    initialPoint={editingPoint}
+                    onSave={handleSavePoint}
+                    onCancel={() => {
+                        setShowPointForm(false);
+                        setEditingPoint(null);
+                    }}
+                />
+            )}
+        </div>
+    );
+};
+
+// Форма для точки интереса
+const PointForm = ({ initialPoint, onSave, onCancel }: any) => {
+    const [point, setPoint] = useState(
         initialPoint || {
             id: crypto.randomUUID(),
             name: '',
@@ -246,19 +303,6 @@ const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
         }
     );
 
-    const [uploadingImage, setUploadingImage] = useState(false);
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        setUploadingImage(true);
-        // TODO: загрузить изображение через API
-        const mockUrl = URL.createObjectURL(file);
-        setPoint(prev => ({ ...prev, imageUrl: mockUrl }));
-        setUploadingImage(false);
-    };
-
     const isValid = point.name.trim() && point.description.trim();
 
     return (
@@ -268,7 +312,6 @@ const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
             </h4>
 
             <div className="space-y-4">
-                {/* Координаты */}
                 <div>
                     <label className="text-stone-700 text-sm font-medium">Координаты точки интереса</label>
                     <div className="grid grid-cols-3 gap-3 mt-1">
@@ -296,7 +339,6 @@ const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
                     </div>
                 </div>
 
-                {/* Название */}
                 <div>
                     <label className="text-stone-700 text-sm font-medium">Название точки интереса</label>
                     <input
@@ -308,7 +350,6 @@ const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
                     />
                 </div>
 
-                {/* Описание */}
                 <div>
                     <label className="text-stone-700 text-sm font-medium">Описание точки интереса</label>
                     <textarea
@@ -320,14 +361,23 @@ const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
                     />
                 </div>
 
-                {/* Фото точки интереса */}
                 <div>
                     <label className="text-stone-700 text-sm font-medium">Фото точки интереса (опционально)</label>
                     <div className="mt-1 border-2 border-dashed border-stone-300 rounded-xl p-4 text-center hover:border-stone-400 transition cursor-pointer">
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={handleImageUpload}
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    try {
+                                        const url = await sceneApi.uploadImage(file);
+                                        setPoint(prev => ({ ...prev, imageUrl: url }));
+                                    } catch (error) {
+                                        console.error('Failed to upload image:', error);
+                                    }
+                                }
+                            }}
                             className="hidden"
                             id="point-image-upload"
                         />
@@ -346,15 +396,12 @@ const PointForm = ({ initialPoint, onSave, onCancel }: PointFormProps) => {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="text-stone-500">
-                                    {uploadingImage ? 'Загрузка...' : 'Загрузить изображение'}
-                                </div>
+                                <div className="text-stone-500">Загрузить изображение</div>
                             )}
                         </label>
                     </div>
                 </div>
 
-                {/* Кнопки */}
                 <div className="flex justify-end gap-3 pt-2">
                     <button
                         onClick={onCancel}

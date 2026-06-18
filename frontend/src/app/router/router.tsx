@@ -4,11 +4,9 @@ import { HomePage } from '@pages/HomePage/Home';
 import { CatalogPage } from '@pages/CatalogPage/Catalog';
 import { ExcursionDetailPage } from '@pages/ExcursionPage/ExcursionDetailPage';
 import { SceneViewerPage } from '@pages/sceneViewerPage';
-import { AuthorsCatalogPage } from '@pages/AuthorsCatalogPage/AuthorsCatalogPage';
-import { AuthorProfilePage } from '@pages/AuthorProfilePage/AuthorProfilePage';
 import { ExhibitsCatalogPage } from '@pages/ExhibitPage/ExhibitPage';
 import { UserProfilePage } from '@pages/ProfilePage/UserProfilePage';
-import { GuideDashboardPage } from '@pages/GuideDashboardPage/GuideDashboardPage';
+
 import { CreateExhibitPage } from '@pages/CreateExhibitPage/CreateExhibitPage';
 import { CreateExcursionPage } from '@pages/CreateExcursionPage/CreateExcursionPage';
 import { NotFoundPage } from '@pages/NotFoundPage/NotFoundPage';
@@ -40,7 +38,6 @@ export const router = createBrowserRouter([
             { path: 'author/:id', element: <WorkspacePublicPage /> },
             { path: 'exhibits', element: <ExhibitsCatalogPage /> },
             { path: 'profile', element: <UserProfilePage /> },
-            { path: 'dashboard', element: <GuideDashboardPage /> },
             { path: 'create-exhibit', element: <CreateExhibitPage /> },
             { path: 'create-excursion', element: <CreateExcursionPage /> },
             {path: 'edit-excursion/:id', element: <CreateExcursionPage/>},
@@ -50,7 +47,7 @@ export const router = createBrowserRouter([
         ],
     },
 ],
-    {
-        scrollRestoration: true
-    }
+    // {
+    //     scrollRestoration: true
+    // }
     );

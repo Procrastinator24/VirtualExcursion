@@ -1,6 +1,7 @@
 export type VerificationStatus = 'NotSubmitted' | 'Pending' | 'Approved' | 'Rejected';
 
 export interface WorkspaceResponse {
+    showInAuthorsCatalog: boolean;
     id: number;
     name: string;
     descriptionShort?: string;
@@ -44,6 +45,7 @@ export interface WorkspaceResponse {
     membersCount: number;
     excursionsCount: number;
     scenesCount: number;
+    isPublished: boolean;
 }
 
 export interface CreateWorkspaceRequest {
@@ -74,6 +76,8 @@ export interface UpdateWorkspaceRequest {
     contactEmail?: string;
     phone?: string;
     address?: string;
+    city?: string;
+    country?: string;
     showContactInfo?: boolean;
     showExhibits?: boolean;
     showExcursions?: boolean;

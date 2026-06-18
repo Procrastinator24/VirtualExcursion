@@ -1,18 +1,66 @@
 version: '3.8'
 
 services:
+  # База данных
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: virtual_excursion_db
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "YourStrong!Password123"
-      MSSQL_PID: "Developer"
+      SA_PASSWORD: ${DB_PASSWORD}
+      MSSQL_PID: "Express"
     ports:
-      - "1433:1433"
+      - "1433:1433"              # Проброс порта для локального подключения
     volumes:
       - sqlserver_data:/var/opt/mssql
     restart: unless-stopped
+    networks:
+      - app-network
+
+  # Бэкенд
+  backend:
+    build:
+      context: ./backend          # Папка с бэкендом
+      dockerfile: Dockerfile
+    container_name: virtual_excursion_backend
+
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=VirtualExcursionDb;User=sa;Password=${DB_PASSWORD};TrustServerCertificate=true
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Email__SmtpHost=${SMTP_HOST}
+      - Email__SmtpPort=${SMTP_PORT}
+      - Email__SmtpUsername=${SMTP_USERNAME}
+      - Email__SmtpPassword=${SMTP_PASSWORD}
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sqlserver
+    restart: unless-stopped
+    networks:
+      - app-network
+    volumes:
+      - ./backend/VirtualExcursion/wwwroot:/app/wwwroot
+
+  # Фронтенд (только если хочешь запускать его в Docker)
+  frontend:
+    build:
+      context: ./frontend         # Папка с фронтендом
+      dockerfile: Dockerfile
+    container_name: virtual_excursion_frontend
+    ports:
+      - "3000:80"                # Фронт доступен на localhost:3000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - app-network
 
 volumes:
   sqlserver_data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -15,10 +15,10 @@ import {workspaceApi, WorkspaceCard} from "../../entities/workspace";
 
 const sceneCategories: { type: SceneType; icon: React.ReactNode; desc: string }[] = [
 
-    { type: "panorama", icon: <Globe className="w-6 h-6" />, desc: "Interactive 360\u00b0 photospheres" },
-    { type: "video", icon: <Video className="w-6 h-6" />, desc: "Expert-narrated video walkthroughs" },
-    { type: "3d", icon: <Box className="w-6 h-6" />, desc: "Detailed interactive 3D reconstructions" },
-    { type: "image", icon: <Image className="w-6 h-6" />, desc: "High-resolution historical imagery" },
+    { type: "panorama", icon: <Globe className="w-6 h-6" />, desc: "Интерактивные 360\u00b0 панорамы" },
+    { type: "video", icon: <Video className="w-6 h-6" />, desc: "Авторские видеоэкскурсии" },
+    { type: "3d", icon: <Box className="w-6 h-6" />, desc: "Интерактивные 3D-реконструкции" },
+    { type: "image", icon: <Image className="w-6 h-6" />, desc: "Исторические архивные снимки" },
 
 ];
 

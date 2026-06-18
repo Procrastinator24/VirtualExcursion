@@ -6,7 +6,8 @@ import { BasicInfoStep } from './ui/BasicInfoStep';
 import { AddScenesStep } from './ui/AddScenesStep';
 import { ExcursionDetailsStep } from './ui/ExcursionDetailsStep';
 import { excursionApi } from '@entities/excursion';
-import type { CreateExcursionRequest, UpdateExcursionRequest, ExcursionResponse } from '@entities/excursion/types';
+import type { CreateExcursionRequest, UpdateExcursionRequest } from '@entities/excursion';
+import { Tag } from '@entities/tags';
 
 export type CreateStep = 'basic' | 'scenes' | 'details';
 
@@ -179,7 +180,7 @@ export const CreateExcursionPage = () => {
                             data={formData}
                             onChange={updateFormData}
                             onNext={handleNext}
-                            isEditMode={isEditMode}
+                            //isEditMode={isEditMode}
                                 />
                                 )}
                     {currentStep === 'scenes' && (
@@ -199,7 +200,7 @@ export const CreateExcursionPage = () => {
                             onPublish={handlePublish}
                             onBack={handleBack}
                             loading={loading}
-                            isEditMode={isEditMode}
+                            //isEditMode={isEditMode}
                         />
                         )}
                     </div>

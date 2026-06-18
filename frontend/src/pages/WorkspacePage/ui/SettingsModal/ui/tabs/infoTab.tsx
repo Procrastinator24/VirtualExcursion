@@ -85,6 +85,7 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
 
             // Сохраняем URL от сервера в formData
             setFormData(prev => ({ ...prev, bannerUrl: uploadedUrl }));
+            console.log(uploadedUrl, formData.bannerUrl)
             // Обновляем превью на URL от сервера
             setCoverPreview(uploadedUrl);
         } catch (error) {

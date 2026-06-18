@@ -29,7 +29,7 @@ namespace VirtualExcursion.DAL.models
         public bool IsAdmin { get; set; } = false;
 
         [MaxLength(500)]
-        public string AvatarUrl {  get; set; }
+        public string? AvatarUrl {  get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }
 

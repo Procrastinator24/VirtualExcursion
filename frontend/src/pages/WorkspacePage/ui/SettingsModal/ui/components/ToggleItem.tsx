@@ -1,4 +1,4 @@
-import {Toggle} from "../../../../../../shared/ui/Toggle/toggle.tsx";
+import {Toggle} from "@shared/ui/Toggle/Toggle.tsx";
 
 interface ToggleItemProps {
     title: string;

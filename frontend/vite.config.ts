@@ -16,9 +16,10 @@ export default defineConfig({
       '@shared': path.resolve(__dirname, './src/shared'),
       '@shared/ui': path.resolve(__dirname, './src/shared/ui'),
       '@shared/lib': path.resolve(__dirname, './src/shared/lib'),
-      '@widgets': path.resolve(__dirname, './src/widgets'),
+     
     },
   },
+  
 
   server: {
     proxy: {
@@ -29,9 +30,10 @@ export default defineConfig({
       '/models': {
         target: 'http://localhost:5209',
         changeOrigin: true,
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
             console.log('Проксируем:', req.url, '→', proxyReq.path);
+           
           });
 
         },

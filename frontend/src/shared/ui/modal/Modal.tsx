@@ -9,7 +9,7 @@ interface ModalProps {
     size?: 'sm' | 'md' | 'lg' | 'xl' ;
 }
 
-export const Modal = ({ isOpen, onClose, title, children, size = '2xl' }: ModalProps) => {
+export const Modal = ({ isOpen, onClose, title, children, size = 'xl' }: ModalProps) => {
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape' && isOpen) {

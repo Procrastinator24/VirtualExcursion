@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Plus, Eye, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
+import { SceneTypeBadge } from '@entities/sceneType';
 import type { ExcursionResponse } from '@entities/excursion/types/excursion';
 
 interface ExcursionsTableProps {
@@ -17,14 +18,6 @@ const statusConfig: Record<string, { label: string; color: string }> = {
     pending: { label: 'На проверке', color: 'bg-amber-50 text-amber-700' },
 };
 
-const formatConfig: Record<string, { label: string; color: string }> = {
-    image: { label: 'Изображения', color: 'bg-amber-50 text-amber-700' },
-    '3d': { label: '3D-модель', color: 'bg-indigo-50 text-indigo-700' },
-    video: { label: 'Видео', color: 'bg-rose-50 text-rose-700' },
-    panorama: { label: '360° панорама', color: 'bg-blue-50 text-blue-700' },
-    vr: { label: 'VR-сцена', color: 'bg-purple-50 text-purple-700' },
-};
-
 export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }: ExcursionsTableProps) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
@@ -36,7 +29,7 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
         preview: 60,
         title: 260,
         scenes: 60,
-        formats: 140,
+        formats: 160, // ✅ Немного увеличил для бейджей
         status: 110,
         updated: 110,
         actions: 120,
@@ -49,8 +42,6 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
                 if (statusFilter === 'published' && !ex.isPublished) return false;
                 if (statusFilter === 'draft' && ex.isPublished) return false;
             }
-            // TODO: фильтр по форматам, когда будет поле formats в API
-            // if (formatFilter !== 'all' && !ex.formats?.includes(formatFilter)) return false;
             return true;
         })
         .sort((a, b) => {
@@ -62,15 +53,6 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    };
-
-    // Временные моковые форматы (TODO: заменить на реальные из API)
-    const getFormatsForExcursion = (excursion: ExcursionResponse): string[] => {
-        // Пока просто возвращаем тип контента как массив
-        if (excursion.contentTypes) {
-            return [excursion.contentTypes];
-        }
-        return [];
     };
 
     return (
@@ -126,8 +108,7 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
                     <option value="3d">3D-модель</option>
                     <option value="video">Видео</option>
                     <option value="panorama">360° панорама</option>
-                    <option value="vr">VR-сцена</option>
-                    <option value="image">Изображения</option>
+                    <option value="image">Изображение</option>
                 </select>
                 <select
                     value={sortBy}
@@ -160,7 +141,8 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
                     {filteredExcursions.map((excursion) => {
                         const status = excursion.isPublished ? 'published' : 'draft';
                         const statusInfo = statusConfig[status];
-                        const formats = getFormatsForExcursion(excursion);
+                        // ✅ Получаем массив типов контента
+                        const contentTypes = excursion.contentTypes || [];
 
                         return (
                             <div
@@ -196,22 +178,17 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
                                     </span>
                                 </div>
 
-                                {/* Форматы */}
+                                {/* ✅ Форматы (используем SceneTypeBadge) */}
                                 <div style={{ width: columnWidths.formats }} className="shrink-0">
-                                    <div className="flex flex-wrap gap-1">
-                                        {formats.length > 0 ? (
-                                            formats.map((fmt, idx) => {
-                                                const fmtInfo = formatConfig[fmt];
-                                                return fmtInfo ? (
-                                                    <span key={idx} className={`px-1.5 py-0.5 rounded-sm text-[10px] font-medium ${fmtInfo.color}`}>
-                                                        {fmtInfo.label}
-                                                    </span>
-                                                ) : null;
-                                            })
-                                        ) : (
-                                            <span className="text-zinc-400 text-xs">—</span>
-                                        )}
-                                    </div>
+                                    {contentTypes.length > 0 ? (
+                                        <SceneTypeBadge 
+                                            type={contentTypes} 
+                                            size="sm" 
+                                            maxDisplay={2}
+                                        />
+                                    ) : (
+                                        <span className="text-zinc-400 text-xs">—</span>
+                                    )}
                                 </div>
 
                                 {/* Статус */}
@@ -230,13 +207,6 @@ export const ExcursionsTable = ({ excursions, workspaceId, isOwner, onRefresh }:
 
                                 {/* Действия */}
                                 <div style={{ width: columnWidths.actions }} className="shrink-0 flex items-center justify-end gap-1">
-                                    {/*<Link*/}
-                                    {/*    to={`/excursion/${excursion.id}`}*/}
-                                    {/*    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 transition-colors"*/}
-                                    {/*    title="Просмотр"*/}
-                                    {/*>*/}
-                                    {/*    <Eye className="w-4 h-4 text-stone-500" />*/}
-                                    {/*</Link>*/}
                                     {isOwner && (
                                         <>
                                             <Link

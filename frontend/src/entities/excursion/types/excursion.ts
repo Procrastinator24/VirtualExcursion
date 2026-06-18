@@ -1,4 +1,4 @@
-import { Tag } from '@entities/tag';
+import { Tag } from '@entities/tags';
 import { ExcursionSceneResponse } from '@entities/scene';
 
 // ============ REQUEST ============
@@ -47,6 +47,10 @@ export interface SceneOrderDto {
 // ============ RESPONSE ============
 
 export interface ExcursionResponse {
+    region: string;
+    period: string;
+    workspaceId: any;
+    workspaceName: string;
     id: number;
     title: string;
     description?: string;

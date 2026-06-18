@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ExcursionCard } from '@entities/excursion/ui/ExcursionCard';
-import type { ExcursionResponse } from '@entities/excursion/types';
+import type { ExcursionResponse } from '@entities/excursion';
 
 interface ExcursionsSectionProps {
     excursions: ExcursionResponse[];

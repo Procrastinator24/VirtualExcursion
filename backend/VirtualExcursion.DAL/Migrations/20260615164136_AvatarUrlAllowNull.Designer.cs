@@ -12,8 +12,8 @@ using VirtualExcursion.DAL.context;
 namespace VirtualExcursion.DAL.Migrations
 {
     [DbContext(typeof(VExContext))]
-    [Migration("20260606125839_userupd")]
-    partial class userupd
+    [Migration("20260615164136_AvatarUrlAllowNull")]
+    partial class AvatarUrlAllowNull
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,6 +33,9 @@ namespace VirtualExcursion.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -49,6 +52,9 @@ namespace VirtualExcursion.DAL.Migrations
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Theme")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ThumbnailUrl")
                         .HasMaxLength(500)
@@ -406,6 +412,10 @@ namespace VirtualExcursion.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -475,15 +485,9 @@ namespace VirtualExcursion.DAL.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("ExcursionsCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("MembersCount")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -500,9 +504,6 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Property<string>("RejectionReason")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("ScenesCount")
-                        .HasColumnType("int");
 
                     b.Property<bool>("ShowContactInfo")
                         .HasColumnType("bit");
@@ -596,7 +597,7 @@ namespace VirtualExcursion.DAL.Migrations
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Excursion", b =>
                 {
-                    b.HasOne("VirtualExcursion.DAL.models.GuideProfile", null)
+                    b.HasOne("VirtualExcursion.DAL.models.GuideProfile", "GuideProfile")
                         .WithMany("Excursions")
                         .HasForeignKey("GuideProfileId");
 
@@ -604,6 +605,8 @@ namespace VirtualExcursion.DAL.Migrations
                         .WithMany("Excursions")
                         .HasForeignKey("WorkspaceId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("GuideProfile");
 
                     b.Navigation("Workspace");
                 });
