@@ -4,11 +4,9 @@ import { HomePage } from '@pages/HomePage/Home';
 import { CatalogPage } from '@pages/CatalogPage/Catalog';
 import { ExcursionDetailPage } from '@pages/ExcursionPage/ExcursionDetailPage';
 import { SceneViewerPage } from '@pages/sceneViewerPage';
-import { AuthorsCatalogPage } from '@pages/AuthorsCatalogPage/AuthorsCatalogPage';
-import { AuthorProfilePage } from '@pages/AuthorProfilePage/AuthorProfilePage';
 import { ExhibitsCatalogPage } from '@pages/ExhibitPage/ExhibitPage';
 import { UserProfilePage } from '@pages/ProfilePage/UserProfilePage';
-import { GuideDashboardPage } from '@pages/GuideDashboardPage/GuideDashboardPage';
+
 import { CreateExhibitPage } from '@pages/CreateExhibitPage/CreateExhibitPage';
 import { CreateExcursionPage } from '@pages/CreateExcursionPage/CreateExcursionPage';
 import { NotFoundPage } from '@pages/NotFoundPage/NotFoundPage';
@@ -16,6 +14,7 @@ import { AboutPage } from '@pages/AboutPage/AboutPage';
 import { AuthPage } from '@pages/AuthPage/AuthPage';
 import WorkspacesCatalogPage from "../../pages/AuthorsCatalogPage/AuthorsCatalogPage.tsx";
 import WorkspacePage from "../../pages/WorkspacePage/WorkspacePage.tsx";
+import WorkspacePublicPage from "@pages/AuthorsCatalogPage/AuthorPublicPage/AuthorPublicPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -36,14 +35,19 @@ export const router = createBrowserRouter([
             },
             {path: 'workspace/:id', element: <WorkspacePage/>},
             { path: 'authors', element: <WorkspacesCatalogPage /> },
-            { path: 'author/:id', element: <AuthorProfilePage /> },
+            { path: 'author/:id', element: <WorkspacePublicPage /> },
             { path: 'exhibits', element: <ExhibitsCatalogPage /> },
             { path: 'profile', element: <UserProfilePage /> },
-            { path: 'dashboard', element: <GuideDashboardPage /> },
             { path: 'create-exhibit', element: <CreateExhibitPage /> },
             { path: 'create-excursion', element: <CreateExcursionPage /> },
+            {path: 'edit-excursion/:id', element: <CreateExcursionPage/>},
             { path: 'about', element: <AboutPage /> },
             { path: '*', element: <NotFoundPage /> },
+
         ],
     },
-]);
+],
+    // {
+    //     scrollRestoration: true
+    // }
+    );

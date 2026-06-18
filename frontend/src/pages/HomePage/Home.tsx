@@ -8,14 +8,17 @@ import {excursionApi} from "../../entities/excursion";
 import type {GuideProfileResponse} from "../../entities/guides";
 import {guideApi} from "../../entities/guides";
 import {GuideCard} from "../../entities/guides/ui/GuideCard.tsx";
+import {Scene, sceneApi, SceneCard} from "../../entities/scene";
+import type {WorkspaceResponse} from "../../entities/workspace";
+import {workspaceApi, WorkspaceCard} from "../../entities/workspace";
 
 
 const sceneCategories: { type: SceneType; icon: React.ReactNode; desc: string }[] = [
 
-    { type: "panorama", icon: <Globe className="w-6 h-6" />, desc: "Interactive 360\u00b0 photospheres" },
-    { type: "video", icon: <Video className="w-6 h-6" />, desc: "Expert-narrated video walkthroughs" },
-    { type: "3d", icon: <Box className="w-6 h-6" />, desc: "Detailed interactive 3D reconstructions" },
-    { type: "image", icon: <Image className="w-6 h-6" />, desc: "High-resolution historical imagery" },
+    { type: "panorama", icon: <Globe className="w-6 h-6" />, desc: "Интерактивные 360\u00b0 панорамы" },
+    { type: "video", icon: <Video className="w-6 h-6" />, desc: "Авторские видеоэкскурсии" },
+    { type: "3d", icon: <Box className="w-6 h-6" />, desc: "Интерактивные 3D-реконструкции" },
+    { type: "image", icon: <Image className="w-6 h-6" />, desc: "Исторические архивные снимки" },
 
 ];
 
@@ -29,15 +32,19 @@ const howItWorks = [
 export const HomePage = () => {
     const [search, setSearch] = useState("");
     const [excursions, setExcursions] = useState<ExcursionResponse[]>([]);
-    const [authors, setAuthors] = useState<GuideProfileResponse[]>([])
+    const [authors, setAuthors] = useState<WorkspaceResponse[]>([])
+    const [scenes, setScenes] = useState<Scene[]>([])
 
     useEffect(() => {
         excursionApi.getAll().then((ex) => {
             console.log(ex.data, typeof ex.data)
             setExcursions(ex.data.slice(0,4))
         })
-        guideApi.getAllGuides().then((g) => {
+        workspaceApi.getAll().then((g) => {
             setAuthors(g.data.slice(0,3))
+        })
+        sceneApi.getScenes().then((scenes) =>{
+            setScenes(scenes)
         })
     }, []);
     return (
@@ -123,8 +130,16 @@ export const HomePage = () => {
                     </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {excursions.map((ex) => (
-                        <ExcursionCard key={ex.id} excursion={ex}/>
+                    {scenes.map((scene) => (
+                        <SceneCard
+                            id={scene.id}
+                            title={scene.title}
+                            description={scene.description}
+                            thumbnailUrl={scene.thumbnailUrl}
+                            contentType={scene.contentType}
+                            isPublished={scene.isPublished}
+                            viewCount={scene.viewCount}
+                            createdAt={scene.createdAt}/>
                     ))}
                 </div>
             </section>
@@ -168,8 +183,12 @@ export const HomePage = () => {
                     </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {authors.map((m) => (
-                        <GuideCard guide={m}/>
+                    {authors.map((workspace) => (
+                        <WorkspaceCard
+                            key={workspace.id}
+                            workspace={workspace}
+                            showStats={true}
+                        />
                     ))}
                 </div>
             </section>

@@ -36,9 +36,9 @@ namespace VirtualExcursion.DAL.models
 
     public enum WorkspaceRole
     {
-        Viewer,     // Только просмотр контента
-        Editor,     // Может создавать/редактировать контент
-        Admin       // Управление участниками, настройками
+        Viewer,     
+        Editor,     
+        Admin       
     }
 
     public enum InvitationStatus

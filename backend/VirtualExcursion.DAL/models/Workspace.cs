@@ -22,8 +22,8 @@ namespace VirtualExcursion.DAL.models
 
         [MaxLength(1000)]
         public string? DescriptionShort { get; set; }
-        [MaxLength(2000)]
-        public string? DescriptionLong { get; set; }
+        //[MaxLength(2000)]
+        //public string? DescriptionLong { get; set; }
 
         [MaxLength(500)]
         public string? LogoUrl { get; set; }
@@ -32,8 +32,8 @@ namespace VirtualExcursion.DAL.models
         public string? BannerUrl { get; set; }
 
         // Тип пространства (задел на будущее)
-        [MaxLength(50)]
-        public string Type { get; set; } = "personal";  // personal, team, museum, school
+        //[MaxLength(50)]
+        //public string Type { get; set; } = "personal";  // personal, team, museum, school
 
         // Контактная информация
         [MaxLength(200)]
@@ -47,28 +47,33 @@ namespace VirtualExcursion.DAL.models
 
         [MaxLength(300)]
         public string? Address { get; set; }
+        [MaxLength(200)]
+        public string? City { get; set; }
 
         // Данные для верификации (простые поля, пока без наследования)
         [MaxLength(200)]
-        public string? LegalName { get; set; }           // Юридическое название (для организаций)
+        public string? Country { get; set; }
+        // Данные для верификации (простые поля, пока без наследования)
+        //[MaxLength(200)]
+        //public string? LegalName { get; set; }           // Юридическое название (для организаций)
 
-        [MaxLength(20)]
-        public string? Inn { get; set; }                 // ИНН
+        //[MaxLength(20)]
+        //public string? Inn { get; set; }                 // ИНН
 
-        [MaxLength(20)]
-        public string? Ogrn { get; set; }                // ОГРН / ОГРНИП
+        //[MaxLength(20)]
+        //public string? Ogrn { get; set; }                // ОГРН / ОГРНИП
 
-        [MaxLength(20)]
-        public string? PassportSeries { get; set; }      // Серия паспорта (для физ. лиц)
+        //[MaxLength(20)]
+        //public string? PassportSeries { get; set; }      // Серия паспорта (для физ. лиц)
 
-        [MaxLength(20)]
-        public string? PassportNumber { get; set; }      // Номер паспорта
+        //[MaxLength(20)]
+        //public string? PassportNumber { get; set; }      // Номер паспорта
 
-        [MaxLength(500)]
-        public string? RegistrationCertificateUrl { get; set; }  // Скан свидетельства о регистрации
+        //[MaxLength(500)]
+        //public string? RegistrationCertificateUrl { get; set; }  // Скан свидетельства о регистрации
 
-        [MaxLength(500)]
-        public string? TaxCertificateUrl { get; set; }           // Скан ИНН/свидетельства
+        //[MaxLength(500)]
+        //public string? TaxCertificateUrl { get; set; }           // Скан ИНН/свидетельства
 
         // Владелец
         public int OwnerId { get; set; }
@@ -87,9 +92,9 @@ namespace VirtualExcursion.DAL.models
         public DateTime? UpdatedAt { get; set; }
 
         // Статистика (опционально, можно вычислять или хранить)
-        public int MembersCount { get; set; } = 1;
-        public int ExcursionsCount { get; set; } = 0;
-        public int ScenesCount { get; set; } = 0;
+        //public int MembersCount { get; set; } = 1;
+        //public int ExcursionsCount { get; set; } = 0;
+        //public int ScenesCount { get; set; } = 0;
 
         // Настройки пространства
         public bool ShowContactInfo { get; set; }      

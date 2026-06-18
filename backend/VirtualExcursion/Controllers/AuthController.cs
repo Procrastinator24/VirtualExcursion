@@ -45,7 +45,6 @@ namespace VirtualExcursion.API.Controllers
                 await _authService.SendVerificationCodeAsync(request.Email);
                 _logger.LogInformation("Код подтверждения отправлен на {Email}", request.Email);
 
-                // Никогда не возвращаем код в ответе!
                 return Ok(new { message = "Код подтверждения отправлен на указанный email" });
             }
             catch (InvalidOperationException ex)

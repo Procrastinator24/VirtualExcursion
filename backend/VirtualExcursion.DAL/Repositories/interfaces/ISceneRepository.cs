@@ -9,14 +9,14 @@ namespace VirtualExcursion.DAL.Repositories.interfaces
 {
     public interface ISceneRepository
     {
-        Task<List<Scene>> Get();
+        Task<List<Scene>> Get(bool onlyPublished);
         Task<Scene> GetById(int id);
-        Task<List<Scene>> GetByWorkspaceId(int workspaceId);
-        Task<List<Scene>> GetByGuideProfileId(int guideProfileId);
-        //Task<ModelScene> Create(ModelScene modelScene);
+        Task<List<Scene>> GetByWorkspaceId(int workspaceId, bool onlyPublished);
+        Task<Scene?> GetByIdWithDetails(int id);
+        Task<Scene> Create(Scene modelScene);
         //Task<ModelScene> Update(ModelScene modelScene);
         //Task<bool> Delete(int id);
-        //Task<bool> Exists(int id);
+        Task<bool> Exists(int id);
         //Task<bool> ExistsBySceneId(int sceneId, int? excludeId = null);
     }
 }

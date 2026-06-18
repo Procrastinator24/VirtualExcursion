@@ -1,4 +1,4 @@
-import { Tag } from '@entities/tag';
+import { Tag } from '@entities/tags';
 import { ExcursionSceneResponse } from '@entities/scene';
 
 // ============ REQUEST ============
@@ -47,22 +47,26 @@ export interface SceneOrderDto {
 // ============ RESPONSE ============
 
 export interface ExcursionResponse {
+    region: string;
+    period: string;
+    workspaceId: any;
+    workspaceName: string;
     id: number;
     title: string;
     description?: string;
     thumbnailUrl?: string;
     duration?: string;
     viewCount: number;
+    city: string;
+    theme: string;
     isPublished: boolean;
     createdAt: string;
     updatedAt?: string;
-    guideId?: number;
-    guideName?: string;
     scenes: ExcursionSceneResponse[];
     tags: Tag[];
     favouritesCount: number;
     isFavourite: boolean;
-    contentType: string
+    contentTypes: string[]
     tagsNames: string[]
 }
 

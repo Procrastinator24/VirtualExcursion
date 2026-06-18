@@ -14,6 +14,6 @@ namespace VirtualExcursion.DAL.models
         public int SceneId { get; set; }
         public virtual Scene Scene { get; set; } = null!;
 
-        public int Order { get; set; } = 0;  // порядок сцены в маршруте
+        public int Order { get; set; } = 0;  
     }
 }

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Plus, Eye, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
-import type { Scene } from '@entities/scene/types';
+import { SceneTypeBadge } from '@entities/sceneType';
+import type { Scene } from '@entities/scene/types/scene';
 
 interface ExhibitsTableProps {
     exhibits: Scene[];
@@ -15,14 +16,6 @@ const statusConfig: Record<string, { label: string; color: string }> = {
     published: { label: 'Опубликовано', color: 'bg-emerald-50 text-emerald-700' },
     draft: { label: 'Черновик', color: 'bg-zinc-100 text-zinc-700' },
     pending: { label: 'На проверке', color: 'bg-amber-50 text-amber-700' },
-};
-
-const formatConfig: Record<string, { label: string; color: string }> = {
-    image: { label: 'Изображения', color: 'bg-amber-50 text-amber-700' },
-    '3d': { label: '3D-модель', color: 'bg-indigo-50 text-indigo-700' },
-    video: { label: 'Видео', color: 'bg-rose-50 text-rose-700' },
-    panorama: { label: '360° панорама', color: 'bg-blue-50 text-blue-700' },
-    vr: { label: 'VR-сцена', color: 'bg-purple-50 text-purple-700' },
 };
 
 export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: ExhibitsTableProps) => {
@@ -62,15 +55,6 @@ export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: Exh
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    };
-
-
-
-    const getFormatsForExhibit = (exhibit: Scene): string[] => {
-        if (exhibit.contentType) {
-            return [exhibit.contentType];
-        }
-        return [];
     };
 
     return (
@@ -149,8 +133,7 @@ export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: Exh
                     <option value="3d">3D-модель</option>
                     <option value="video">Видео</option>
                     <option value="panorama">360° панорама</option>
-                    <option value="vr">VR-сцена</option>
-                    <option value="image">Изображения</option>
+                    <option value="image">Изображение</option>
                 </select>
                 <select
                     value={sortBy}
@@ -172,7 +155,7 @@ export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: Exh
                         <div className="w-32 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Категория</div>
                         <div className="w-28 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Период</div>
                         <div className="w-32 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Регион</div>
-                        <div className="w-32 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Форматы</div>
+                        <div className="w-32 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Формат</div>
                         <div className="w-24 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Статус</div>
                         <div className="w-28 text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Обновлено</div>
                         <div className="w-28 text-right text-zinc-500 text-xs font-semibold uppercase tracking-wide shrink-0">Действия</div>
@@ -183,13 +166,12 @@ export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: Exh
                         {paginatedExhibits.map((exhibit, idx) => {
                             const status = exhibit.isPublished ? 'published' : 'draft';
                             const statusInfo = statusConfig[status];
-                            const formats = getFormatsForExhibit(exhibit);
+                            // ✅ Получаем тип контента
+                            const contentType = exhibit.contentType || '3d';
                             const globalIndex = (currentPage - 1) * itemsPerPage + idx;
 
                             return (
                                 <div key={exhibit.id} className="px-4 py-3 flex items-center gap-4 hover:bg-stone-50 transition-colors">
-
-
                                     {/* Превью */}
                                     <div className="w-14 shrink-0">
                                         <div className="w-14 h-10 bg-zinc-100 rounded-sm border border-zinc-200/60 overflow-hidden">
@@ -214,7 +196,7 @@ export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: Exh
                                     {/* Категория */}
                                     <div className="w-32 shrink-0">
                                         <span className="text-zinc-600 text-sm">
-                                            {exhibit.category || '—'}
+                                            {exhibit.theme || '—'}
                                         </span>
                                     </div>
 
@@ -232,22 +214,9 @@ export const ExhibitsTable = ({ exhibits, workspaceId, isOwner, onRefresh }: Exh
                                         </span>
                                     </div>
 
-                                    {/* Форматы */}
+                                    {/* ✅ Формат (используем SceneTypeBadge) */}
                                     <div className="w-32 shrink-0">
-                                        <div className="flex flex-wrap gap-1">
-                                            {formats.length > 0 ? (
-                                                formats.map((fmt, idx) => {
-                                                    const fmtInfo = formatConfig[fmt];
-                                                    return fmtInfo ? (
-                                                        <span key={idx} className={`px-1.5 py-0.5 rounded-sm text-[10px] font-medium ${fmtInfo.color}`}>
-                                                            {fmtInfo.label}
-                                                        </span>
-                                                    ) : null;
-                                                })
-                                            ) : (
-                                                <span className="text-zinc-400 text-xs">—</span>
-                                            )}
-                                        </div>
+                                        <SceneTypeBadge type={contentType} size="sm" />
                                     </div>
 
                                     {/* Статус */}

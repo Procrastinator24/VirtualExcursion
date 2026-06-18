@@ -21,7 +21,7 @@ namespace VirtualExcursion.BLL.services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IGuideProfileRepository _guideProfileRepository;
+        //private readonly IGuideProfileRepository _guideProfileRepository;
         private readonly IPasswordHashingService _passwordHasher;
         private readonly IVerificationCodeStorage _codeStorage;
         private readonly IEmailService _emailService;
@@ -36,7 +36,6 @@ namespace VirtualExcursion.BLL.services
 
         public AuthService(
             IUserRepository userRepository,
-            IGuideProfileRepository guideProfileRepository,
             IPasswordHashingService passwordHasher,
             IVerificationCodeStorage codeStorage,
             IEmailService emailService,
@@ -44,7 +43,6 @@ namespace VirtualExcursion.BLL.services
             IMapper mapper)
         {
             _userRepository = userRepository;
-            _guideProfileRepository = guideProfileRepository;
             _passwordHasher = passwordHasher;
             _codeStorage = codeStorage;
             _emailService = emailService;
@@ -67,10 +65,10 @@ namespace VirtualExcursion.BLL.services
             }
 
             // Проверка, не зарегистрирован ли уже пользователь
-            //if (await _userRepository.ExistsByEmail(email))
-            //{
-            //    throw new InvalidOperationException("Пользователь с таким email уже зарегистрирован");
-            //}
+            if (await _userRepository.ExistsByEmail(email))
+            {
+                throw new InvalidOperationException("Пользователь с таким email уже зарегистрирован");
+            }
 
             // Генерация 4-значного кода
             var code = _random.Next(1000, 9999).ToString();
@@ -130,9 +128,7 @@ namespace VirtualExcursion.BLL.services
         {
             var email = request.Email.ToLowerInvariant();
 
-            // Проверяем, что код уже был верифицирован (опционально, т.к. код уже удалён после верификации)
-            // В нашем флоу фронт сначала вызывает /verify-code, а потом /register
-            // Поэтому здесь мы просто верим, что фронт уже проверил код
+            
 
             if (await _userRepository.ExistsByEmail(email))
             {
@@ -144,14 +140,10 @@ namespace VirtualExcursion.BLL.services
                 Username = request.Name,
                 Email = email,
                 PasswordHash = _passwordHasher.HashPassword(request.Password),
-                Role = UserRole.User,
                 CreatedAt = DateTime.UtcNow
             };
 
             var createdUser = await _userRepository.Create(user);
-
-            // Создаём GuideProfile? Нет, только по желанию пользователя (отдельный процесс)
-            // Пока просто возвращаем токен
 
             var token = GenerateJwtToken(createdUser);
             var expiresAt = DateTime.UtcNow.AddMinutes(GetExpireMinutes());
@@ -163,8 +155,6 @@ namespace VirtualExcursion.BLL.services
                 Email = createdUser.Email,
                 Token = token,
                 TokenExpiresAt = expiresAt,
-                Role = createdUser.Role.ToString(),
-                HasGuideProfile = createdUser.GuideProfile != null
             };
         }
 
@@ -191,8 +181,7 @@ namespace VirtualExcursion.BLL.services
                 Email = user.Email,
                 Token = token,
                 TokenExpiresAt = expiresAt,
-                Role = user.Role.ToString(),
-                HasGuideProfile = user.GuideProfile != null
+
             };
         }
 
@@ -212,7 +201,6 @@ namespace VirtualExcursion.BLL.services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

@@ -5,13 +5,13 @@ import { excursionApi } from '@entities/excursion/api/excursion.api';
 import { workspaceApi, type WorkspaceResponse } from '@entities/workspace';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
 import type { ExcursionResponse } from '@entities/excursion/types/excursion';
+import {ExcursionCard} from "../../entities/excursion";
 
 // Типы для фильтров
-type ContentType = 'vr' | 'panorama' | 'video' | '3d' | 'image';
+type ContentType = | 'panorama' | 'video' | '3d' | 'image';
 type Period = 'Prehistoric' | 'Ancient' | 'Medieval' | 'Renaissance' | 'Baroque' | 'Gothic';
 
 const contentTypeLabels: Record<ContentType, string> = {
-    vr: 'VR',
     panorama: '360°',
     video: 'Video',
     '3d': '3D Модель',
@@ -19,7 +19,6 @@ const contentTypeLabels: Record<ContentType, string> = {
 };
 
 const contentTypeColors: Record<ContentType, string> = {
-    vr: 'bg-purple-100 text-purple-700',
     panorama: 'bg-blue-100 text-blue-700',
     video: 'bg-red-100 text-red-700',
     '3d': 'bg-emerald-100 text-emerald-700',
@@ -144,7 +143,8 @@ export const CatalogPage: React.FC = () => {
 
         // Фильтр по направлениям (заглушка)
         if (selectedDirections.length > 0) {
-            // TODO: добавить поле direction в Excursion
+            result = result.filter(ex =>
+                ex.theme && selectedDirections.includes(ex.theme.toLowerCase()))
         }
 
         // Фильтр по периоду
@@ -155,11 +155,11 @@ export const CatalogPage: React.FC = () => {
         }
 
         // Фильтр по типу контента
-        if (selectedTypes.length > 0) {
-            result = result.filter(ex =>
-                ex.contentType && selectedTypes.includes(ex.contentType as ContentType)
-            );
-        }
+        // if (selectedTypes.length > 0) {
+        //     result = result.filter(ex =>
+        //         ex.contentTypes && selectedTypes.includes(ex.contentTypes)
+        //     );
+        // }
 
         // Фильтр по региону (заглушка)
         if (selectedRegions.length > 0) {
@@ -168,7 +168,7 @@ export const CatalogPage: React.FC = () => {
 
         // Фильтр по городу (заглушка)
         if (selectedCities.length > 0) {
-            // TODO: добавить поле city в Excursion
+            result = result.filter(ex => ex.city && selectedCities.includes(ex.city.toLowerCase()))
         }
 
         // Сортировка по дате (новые сверху)
@@ -519,79 +519,13 @@ export const CatalogPage: React.FC = () => {
 
                     {/* Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                        {filteredExcursions.map((excursion) => {
-                            const contentType = excursion.contentType as ContentType;
-
-                            return (
-                                <div
+                        {filteredExcursions.map((excursion) => (
+                            <ExcursionCard
                                     key={excursion.id}
-                                    onClick={() => navigate(`/excursion/${excursion.id}`)}
-                                    className="group bg-white rounded-xl overflow-hidden border border-stone-200/60 hover:shadow-lg hover:border-stone-300 transition-all cursor-pointer"
-                                >
-                                    <div className="relative h-44 overflow-hidden">
-                                        <ImageWithFallback
-                                            src={excursion.thumbnailUrl || '/placeholder.jpg'}
-                                            alt={excursion.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                excursion={excursion}
+                                showGuideName={true}
                                         />
-
-                                        {/* Badges */}
-                                        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                                            {contentType && contentTypeLabels[contentType] && (
-                                                <span className={`px-2 py-0.5 rounded-md ${contentTypeColors[contentType]}`}
-                                                      style={{ fontSize: 10, fontWeight: 500 }}>
-                                                    {contentTypeLabels[contentType]}
-                                                </span>
-                                            )}
-                                            <span
-                                                className={`px-2 py-0.5 rounded-md ${excursion.isPublished ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}
-                                                style={{ fontSize: 10, fontWeight: 500 }}>
-                                                {excursion.isPublished ? 'Опубликовано' : 'Черновик'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="p-4">
-                                        <h3 className="text-stone-900 mb-1" style={{ fontSize: 15, fontWeight: 600 }}>
-                                            {excursion.title}
-                                        </h3>
-                                        <p className="text-stone-500 mb-3 line-clamp-2" style={{ fontSize: 13, lineHeight: 1.5 }}>
-                                            {excursion.description || 'Без описания'}
-                                        </p>
-
-                                        {/* Теги */}
-                                        {excursion.tagsNames && excursion.tagsNames.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 mb-3">
-                                                {excursion.tagsNames.slice(0, 3).map((tag, idx) => (
-                                                    <span key={idx} className="text-xs text-stone-400">#{tag}</span>
                                                 ))}
-                                                {excursion.tagsNames.length > 3 && (
-                                                    <span className="text-xs text-stone-400">+{excursion.tagsNames.length - 3}</span>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        <div className="flex items-center gap-3 text-stone-400" style={{ fontSize: 12 }}>
-                                            <span className="flex items-center gap-1">
-                                                <MapPin className="w-3 h-3"/>
-                                                {excursion.guideName || 'Неизвестный гид'}
-                                            </span>
-                                        </div>
-
-                                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
-                                            <div className="flex items-center gap-1 text-stone-500" style={{ fontSize: 12 }}>
-                                                <Clock className="w-3 h-3"/>
-                                                {excursion.duration || '—'}
-                                            </div>
-                                            <div className="flex items-center gap-1" style={{ fontSize: 12 }}>
-                                                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400"/>
-                                                <span className="text-stone-600">{excursion.viewCount?.toLocaleString() || 0} просмотров</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
                     </div>
 
                     {filteredExcursions.length === 0 && (

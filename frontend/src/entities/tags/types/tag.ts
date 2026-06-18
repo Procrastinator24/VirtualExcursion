@@ -1,10 +1,10 @@
 export interface Tag {
     id: number,
     name: string,
-    slug: string,
-    description: string,
-    createdAt: string,
-    scenesCount: number
+    slug?: string,
+    description?: string,
+    createdAt?: string,
+    scenesCount?: number
 }
 
 // public int Id { get; set; }

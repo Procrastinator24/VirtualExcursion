@@ -26,6 +26,7 @@ import {
 import { workspaceApi } from '@entities/workspace';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
 import type { WorkspaceResponse } from '@entities/workspace';
+import {WorkspaceCard} from "../../entities/workspace";
 
 // Типы для фильтров
 interface FilterSection {
@@ -397,45 +398,12 @@ export const WorkspacesCatalogPage = () => {
                     {/* Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                         {filteredWorkspaces.map((workspace) => (
-                            <Link
+                            <WorkspaceCard
                                 key={workspace.id}
-                                to={`/workspace/${workspace.id}`}
-                                className="group bg-white rounded-xl overflow-hidden border border-stone-200/60 hover:shadow-lg hover:border-stone-300 transition-all cursor-pointer no-underline"
-                            >
-                                <div className="relative h-44 overflow-hidden">
-                                    <ImageWithFallback
-                                        src={workspace.logoUrl || '/workspace-placeholder.jpg'}
-                                        alt={workspace.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                linkTo={`/author/${workspace.id}`}
+                                workspace={workspace}
+                                showStats={true}
                                     />
-                                </div>
-                                <div className="p-4">
-                                    <h3 className="text-stone-900 mb-1" style={{fontSize: 15, fontWeight: 600}}>
-                                        {workspace.name}
-                                    </h3>
-                                    <p className="text-stone-500 mb-3 line-clamp-2"
-                                       style={{fontSize: 13, lineHeight: 1.5}}>
-                                        {workspace.descriptionShort || 'Нет описания'}
-                                    </p>
-                                    {workspace.address && (
-                                        <div className="flex items-center gap-1 text-stone-400 mb-2"
-                                             style={{fontSize: 12}}>
-                                            <MapPin className="w-3 h-3"/>
-                                            <span className="truncate">{workspace.address}</span>
-                                        </div>
-                                    )}
-                                    <div
-                                        className="flex items-center justify-between pt-3 border-t border-stone-100 text-stone-400"
-                                        style={{fontSize: 12}}>
-                                        <span className="flex items-center gap-1">
-                                            <Users className="w-3 h-3"/> {workspace.membersCount || 1} участников
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <BookOpen className="w-3 h-3"/> {workspace.excursionsCount || 0} экскурсий
-                                        </span>
-                                    </div>
-                                </div>
-                            </Link>
                         ))}
                     </div>
 

@@ -1,7 +1,8 @@
 import { InfoRow } from '../components/InfoRow';
-import {StatusBadge, VerificationBadge} from '../components/StatusBadge';
+import {VerificationBadge} from '../../../../../../shared/ui/VerificationBadge/StatusBadge.tsx';
 import { RoleBadge } from '../components/RoleBadge';
 import { DocumentLink } from '../components/DocumentLink';
+import { VerificationStatus } from '@entities/workspace/index.ts';
 
 interface VerificationTabProps {
     // Данные пользователя
@@ -9,7 +10,7 @@ interface VerificationTabProps {
     userEmail: string;
 
     // Данные заявки
-    applicationStatus: 'pending' | 'approved' | 'rejected' | 'not_submitted';
+    applicationStatus: VerificationStatus;
     applicationDate?: string;
     workspaceType?: string;
     organizationName?: string;
@@ -40,7 +41,7 @@ export const VerificationTab = ({
                                     onEditApplication,
                                     canEdit = true,
                                 }: VerificationTabProps) => {
-    const isApplicationSubmitted = applicationStatus !== 'Not_submitted';
+    const isApplicationSubmitted = applicationStatus !== 'NotSubmitted';
 
     return (
         <div className="inline-flex flex-col justify-start items-start gap-5">
@@ -128,7 +129,7 @@ export const VerificationTab = ({
                 </div>
 
                 {/* Кнопки действий */}
-                {(applicationStatus === 'not_submitted' || applicationStatus === 'rejected') && canEdit && (
+                {(applicationStatus === 'NotSubmitted' || applicationStatus === 'Rejected') && canEdit && (
                     <div className="self-stretch inline-flex justify-start items-center gap-3">
                         <button
                             onClick={onOpenApplication}
@@ -141,7 +142,7 @@ export const VerificationTab = ({
                     </div>
                 )}
 
-                {(applicationStatus === 'pending') && canEdit && (
+                {(applicationStatus === 'Pending') && canEdit && (
                     <div className="self-stretch inline-flex justify-start items-center gap-3">
                         <button
                             onClick={onEditApplication}

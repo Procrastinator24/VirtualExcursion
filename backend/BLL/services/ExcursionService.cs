@@ -17,20 +17,23 @@ namespace VirtualExcursion.BLL.services
         private readonly IExcursionRepository _excursionRepository;
         private readonly ISceneRepository _sceneRepository;
         private readonly IMapper _mapper;
+        private readonly IWorkspaceMemberRepository _workspaceMemberRepository;
 
         public ExcursionService(
             IExcursionRepository excursionRepository,
             ISceneRepository sceneRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IWorkspaceMemberRepository workspaceMemberRepository)
         {
             _excursionRepository = excursionRepository;
             _sceneRepository = sceneRepository;
             _mapper = mapper;
+            _workspaceMemberRepository = workspaceMemberRepository;
         }
 
-        public async Task<List<ExcursionResponse>> Get()
+        public async Task<List<ExcursionResponse>> Get(bool onlyPublished)
         {
-            var excursions = await _excursionRepository.Get();
+            var excursions = await _excursionRepository.Get(onlyPublished);
             return _mapper.Map<List<ExcursionResponse>>(excursions);
         }
 
@@ -49,20 +52,16 @@ namespace VirtualExcursion.BLL.services
             return _mapper.Map<List<ExcursionResponse>>(excursions);
         }
 
-        public async Task<List<ExcursionResponse>> GetByGuideId(int guideId)
-        {
-            var excursions = await _excursionRepository.GetByGuideId(guideId);
-            return _mapper.Map<List<ExcursionResponse>>(excursions);
-        }
 
-        public async Task<ExcursionResponse> Create(CreateExcursionRequest request, int guideProfileId)
+        public async Task<ExcursionResponse> Create(CreateExcursionRequest request, int userId)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
 
-            // 1. Создаём экскурсию
+            if (!await _workspaceMemberRepository.IsMember(request.WorkspaceId, userId) & await _workspaceMemberRepository.GetUserRole(request.WorkspaceId, userId) != WorkspaceRole.Viewer)
+                throw new UnauthorizedAccessException("Пользователь не имеет прав на создание контента в этом пространстве!");
+
             var excursion = _mapper.Map<Excursion>(request);
-            excursion.GuideProfileId = guideProfileId;
             excursion.CreatedAt = DateTime.UtcNow;
             excursion.UpdatedAt = DateTime.UtcNow;
 
@@ -74,12 +73,6 @@ namespace VirtualExcursion.BLL.services
                 for (int i = 0; i < request.SceneIds.Count; i++)
                 {
                     var sceneId = request.SceneIds[i];
-
-                    // Проверяем, существует ли сцена
-                    //if (!await _sceneRepository.Exists(sceneId))
-                    //    throw new KeyNotFoundException($"Сцена с id {sceneId} не найдена");
-
-                    // Добавляем связь
                     await _excursionRepository.AddSceneToExcursion(created.Id, sceneId, i);
                 }
             }

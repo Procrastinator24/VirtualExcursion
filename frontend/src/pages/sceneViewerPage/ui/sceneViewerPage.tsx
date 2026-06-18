@@ -1,24 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
     ChevronLeft, ChevronRight, Info, MapPin, Maximize2, Minimize2, X,
-    Eye, Globe, Video, Image, Box
+    Eye, Globe, Video, Image as ImageIcon, Box, Play
 } from 'lucide-react';
 import { Engine, Scene as BabylonScene, FlyCamera, Vector3, HemisphericLight, SceneLoader } from '@babylonjs/core';
 import '@babylonjs/loaders';
-import { sceneApi } from '@entities/scene';
+import { sceneApi } from '../../../entities/scene/api/scene.api.ts';
 import { excursionApi } from '@entities/excursion/api/excursion.api';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
 import { SceneTypeBadge } from '@entities/sceneType';
 import type { ExcursionResponse } from '@entities/excursion/types/excursion';
-import type { ModelScene } from '@entities/scene';
+import type { Scene } from '@entities/scene';
+import type { PointOfInterest as POIResponse } from '@entities/pointOfInterest/index.ts';
+
+const MEDIA_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5209';
 
 // Константы для типов контента
 const typeIcon: Record<string, React.ReactNode> = {
     vr: <Eye className="w-4 h-4" />,
     panorama: <Globe className="w-4 h-4" />,
     video: <Video className="w-4 h-4" />,
-    image: <Image className="w-4 h-4" />,
+    image: <ImageIcon className="w-4 h-4" />,
     '3d': <Box className="w-4 h-4" />,
 };
 
@@ -48,7 +51,7 @@ export const SceneViewerPage = () => {
 
     // Состояния
     const [excursion, setExcursion] = useState<ExcursionResponse | null>(null);
-    const [sceneData, setSceneData] = useState<ModelScene | null>(null);
+    const [sceneData, setSceneData] = useState<Scene | null>(null);
     const [currentSceneIndex, setCurrentSceneIndex] = useState(-1);
     const [loading, setLoading] = useState(true);
     const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -63,14 +66,18 @@ export const SceneViewerPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
+            setIsModelLoaded(false);
+
             try {
-                // Загружаем сцену
-                const sceneDataRes = await sceneApi.getModelSceneById(actualSceneId);
+                // Используем универсальный метод
+                const sceneDataRes = await sceneApi.getSceneById(actualSceneId);
+                console.log('Scene data loaded:', sceneDataRes);
                 setSceneData(sceneDataRes);
 
                 // Если в контексте экскурсии — загружаем экскурсию
                 if (isInExcursion && excursionId) {
                     const excursionRes = await excursionApi.getById(parseInt(excursionId));
+                    console.log('Excursion data loaded:', excursionRes.data);
                     setExcursion(excursionRes.data);
 
                     // Находим индекс текущей сцены в экскурсии
@@ -89,7 +96,7 @@ export const SceneViewerPage = () => {
         }
     }, [actualSceneId, excursionId, isInExcursion]);
 
-    // Навигация по сценам (только если в контексте экскурсии)
+    // Навигация по сценам
     const prevScene = isInExcursion && currentSceneIndex > 0
         ? excursion?.scenes[currentSceneIndex - 1]
         : null;
@@ -97,54 +104,113 @@ export const SceneViewerPage = () => {
         ? excursion?.scenes[currentSceneIndex + 1]
         : null;
 
-    const currentContentType = sceneData?.modelFormat === 'glb' ? '3d' : (sceneData?.contentType || 'image');
 
-    // Babylon.js загрузка
+    const [isMounted, setIsMounted] = useState(false);
+
     useEffect(() => {
-        if (!canvasRef.current || !sceneData?.modelUrl || sceneData.modelFormat !== 'glb') {
+        setIsMounted(true);
+        return () => setIsMounted(false);
+    }, []);
+
+    // Babylon.js загрузка (только для 3D)
+    useLayoutEffect(() => {
+        // Ждём данные и проверяем, что это 3D
+        if (!sceneData || sceneData.contentType !== '3d' || !sceneData.modelUrl) {
+            console.log('⏭️ Not a 3D model or missing data');
             return;
         }
 
+        if (!isMounted) {
+            console.log('⏳ Waiting for component to mount...');
+            return;
+        }
+
+        // Проверяем canvas
         const canvas = canvasRef.current;
+        if (!canvas) {
+            console.error('❌ Canvas ref is null!');
+            return;
+        }
+
+        console.log('✅ Canvas found, initializing Babylon...');
+
+        // Очищаем предыдущие экземпляры
+        if (engineRef.current) {
+            engineRef.current.dispose();
+            engineRef.current = null;
+        }
+        if (sceneRef.current) {
+            sceneRef.current.dispose();
+            sceneRef.current = null;
+        }
+
         const engine = new Engine(canvas, true);
         engineRef.current = engine;
         const scene = new BabylonScene(engine);
         sceneRef.current = scene;
 
         const camera = new FlyCamera("FlyCamera", new Vector3(0, 5, -10), scene);
-        camera.attachControl(canvas, true);
+        camera.attachControl(true);
 
         const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
 
         const loadModel = async () => {
             try {
+                console.log('📦 Loading model from:', sceneData.modelUrl);
                 const result = await SceneLoader.ImportMeshAsync("", "", sceneData.modelUrl, scene);
+                console.log('✅ Model loaded, meshes:', result.meshes.length);
                 setIsModelLoaded(true);
 
                 if (result.meshes.length > 0) {
                     const boundingInfo = result.meshes[0].getBoundingInfo();
-                    if (boundingInfo) camera.setTarget(boundingInfo.boundingBox.center);
+                    if (boundingInfo) {
+                        camera.setTarget(boundingInfo.boundingBox.center);
+                    }
                 }
             } catch (err) {
-                console.error("Ошибка загрузки модели:", err);
+                console.error("❌ Error loading model:", err);
+                setIsModelLoaded(false);
             }
         };
 
         loadModel();
+
         engine.runRenderLoop(() => scene.render());
         window.addEventListener("resize", () => engine.resize());
 
         return () => {
-            scene.dispose();
-            engine.dispose();
+            console.log('🧹 Cleaning up Babylon...');
+            if (engineRef.current) {
+                engineRef.current.dispose();
+                engineRef.current = null;
+            }
+            if (sceneRef.current) {
+                sceneRef.current.dispose();
+                sceneRef.current = null;
+            }
         };
-    }, [sceneData]);
+    }, [sceneData, isMounted]);// Зависит от sceneData
+
+    // Очистка при размонтировании компонента
+    useEffect(() => {
+        return () => {
+            console.log('Component unmounting, cleaning up...');
+            if (engineRef.current) {
+                engineRef.current.dispose();
+                engineRef.current = null;
+            }
+            if (sceneRef.current) {
+                sceneRef.current.dispose();
+                sceneRef.current = null;
+            }
+        };
+    }, []);
 
     if (loading) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-64px)]">
-                <div className="animate-pulse text-stone-500">Загрузка...</div>
+                <div className="animate-pulse text-stone-500">Загрузка данных...</div>
             </div>
         );
     }
@@ -157,6 +223,101 @@ export const SceneViewerPage = () => {
             </div>
         );
     }
+
+    const is3DModel = sceneData.contentType === '3d' && !!sceneData.modelUrl;
+    const contentType = sceneData.contentType || 'image';
+
+    // Рендеринг контента в зависимости от типа
+    const renderContent = () => {
+        switch (contentType) {
+            case '3d':
+                return (
+                    <>
+                        <canvas ref={canvasRef} key={`canvas-${sceneData?.id}-${isInExcursion}`} className="w-full h-full" />
+                        {!isModelLoaded && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                                <div className="text-white text-lg">Загрузка 3D модели...</div>
+                            </div>
+                        )}
+                    </>
+                );
+
+            case 'image':
+                return (
+                    <ImageWithFallback
+                        src={sceneData.imageUrl || sceneData.thumbnailUrl || '/placeholder.jpg'}
+                        alt={sceneData.title}
+                        className="w-full h-full object-contain"
+                    />
+                );
+
+            case 'video':
+                // Строим полный URL к видео
+                const videoUrl = sceneData.videoUrl?.startsWith('http')
+                    ? sceneData.videoUrl
+                    : `${MEDIA_BASE_URL}${sceneData.videoUrl}`;
+
+                const posterUrl = sceneData.thumbnailUrl?.startsWith('http')
+                    ? sceneData.thumbnailUrl
+                    : `${MEDIA_BASE_URL}${sceneData.thumbnailUrl}`;
+
+                console.log('🎬 Video full URL:', videoUrl);
+                console.log('🎬 Poster URL:', posterUrl);
+
+                return (
+                    <div className="relative w-full h-full bg-black flex items-center justify-center">
+                        <video
+                            key={videoUrl}
+                            controls
+                            autoPlay
+                            className="w-full h-full object-contain"
+                            poster={posterUrl}
+                            onError={(e) => {
+                                const video = e.currentTarget;
+                                console.error(' Video error:', {
+                                    error: video.error,
+                                    code: video.error?.code,
+                                    message: video.error?.message,
+                                    src: videoUrl
+                                });
+                            }}
+                            onLoadedData={() => console.log(' Video loaded successfully')}
+                        >
+                            <source src={videoUrl} type="video/mp4" />
+                            <source src={videoUrl} type="video/webm" />
+                            <p className="text-white">Ваш браузер не поддерживает видео</p>
+                        </video>
+                    </div>
+                );
+
+            case 'panorama':
+                // Для панорамы можно использовать специализированные библиотеки (например, Pannellum)
+                // Или просто показать изображение как placeholder
+                return (
+                    <div className="relative w-full h-full">
+                        <ImageWithFallback
+                            src={sceneData.panoramaUrl || sceneData.thumbnailUrl || '/placeholder.jpg'}
+                            alt={sceneData.title}
+                            className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <div className="text-white text-center">
+                                <Globe className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                                <p className="text-lg">360° панорама</p>
+                                <p className="text-sm opacity-75">Для просмотра используйте мышь</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            default:
+                return (
+                    <div className="flex items-center justify-center h-full bg-stone-100">
+                        <div className="text-stone-500">Неподдерживаемый тип контента</div>
+                    </div>
+                );
+        }
+    };
 
     return (
         <div className={`flex flex-col ${fullscreen ? "fixed inset-0 z-[100] bg-black" : "h-[calc(100vh-64px)]"}`}>
@@ -174,7 +335,7 @@ export const SceneViewerPage = () => {
                     )}
                     <span className="w-px h-5 bg-stone-700" />
                     <span className="text-white" style={{ fontSize: 14, fontWeight: 500 }}>
-                        {isInExcursion && excursion ? excursion.title : sceneData.sceneName}
+                        {isInExcursion && excursion ? excursion.title : sceneData.title}
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -183,8 +344,8 @@ export const SceneViewerPage = () => {
                             Сцена {currentSceneIndex + 1} из {excursion.scenes.length}
                         </span>
                     )}
-                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md ${contentTypeColors[currentContentType]}`} style={{ fontSize: 11, fontWeight: 500 }}>
-                        {typeIcon[currentContentType]} {contentTypeLabels[currentContentType]}
+                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md ${contentTypeColors[contentType]}`} style={{ fontSize: 11, fontWeight: 500 }}>
+                        {typeIcon[contentType]} {contentTypeLabels[contentType]}
                     </div>
                     <button onClick={() => setShowInfo(!showInfo)} className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${showInfo ? "bg-white/20 text-white" : "text-stone-400 hover:text-white"}`}>
                         <Info className="w-4 h-4" />
@@ -199,21 +360,9 @@ export const SceneViewerPage = () => {
             <div className="flex-1 flex overflow-hidden relative">
                 {/* Scene Content */}
                 <div className="flex-1 relative bg-black">
-                    {/* Контент в зависимости от типа */}
-                    {sceneData.modelFormat === 'glb' ? (
-                        <canvas ref={canvasRef} className="w-full h-full" />
-                    ) : (
-                        <ImageWithFallback src={sceneData.thumbnailUrl || '/placeholder.jpg'} alt={sceneData.sceneName} className="w-full h-full object-contain" />
-                    )}
+                    {renderContent()}
 
-                    {/* Overlay для 3D */}
-                    {currentContentType === '3d' && !isModelLoaded && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-                            <div className="text-white text-lg">Загрузка 3D модели...</div>
-                        </div>
-                    )}
-
-                    {/* Navigation Arrows (только в контексте экскурсии) */}
+                    {/* Navigation Arrows */}
                     {isInExcursion && (
                         <>
                             <div className="absolute top-1/2 -translate-y-1/2 left-4">
@@ -240,7 +389,7 @@ export const SceneViewerPage = () => {
                         <div className="p-5">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-stone-900" style={{ fontSize: 18, fontWeight: 600 }}>
-                                    {sceneData.sceneName}
+                                    {sceneData.title}
                                 </h3>
                                 <button onClick={() => setShowInfo(false)} className="text-stone-400 hover:text-stone-600">
                                     <X className="w-4 h-4" />
@@ -255,7 +404,7 @@ export const SceneViewerPage = () => {
                                 <div className="flex justify-between" style={{ fontSize: 13 }}>
                                     <span className="text-stone-400">Тип</span>
                                     <span className="text-stone-700" style={{ fontWeight: 500 }}>
-                                        {contentTypeLabels[currentContentType] || '3D'}
+                                        {contentTypeLabels[contentType] || '3D'}
                                     </span>
                                 </div>
                                 {isInExcursion && excursion && (
@@ -263,6 +412,14 @@ export const SceneViewerPage = () => {
                                         <span className="text-stone-400">Экскурсия</span>
                                         <span className="text-stone-700" style={{ fontWeight: 500 }}>
                                             {excursion.title}
+                                        </span>
+                                    </div>
+                                )}
+                                {sceneData.durationSeconds && (
+                                    <div className="flex justify-between" style={{ fontSize: 13 }}>
+                                        <span className="text-stone-400">Длительность</span>
+                                        <span className="text-stone-700" style={{ fontWeight: 500 }}>
+                                            {Math.floor(sceneData.durationSeconds / 60)} мин {sceneData.durationSeconds % 60} сек
                                         </span>
                                     </div>
                                 )}
@@ -275,10 +432,10 @@ export const SceneViewerPage = () => {
                                 </h4>
                                 {sceneData.pointsOfInterest && sceneData.pointsOfInterest.length > 0 ? (
                                     <div className="space-y-2">
-                                        {sceneData.pointsOfInterest.map((poi) => (
+                                        {sceneData.pointsOfInterest.map((poi: POIResponse) => (
                                             <div key={poi.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-stone-50">
                                                 <MapPin className="w-3.5 h-3.5 text-stone-400" />
-                                                <span className="text-stone-700 text-sm">{poi.title}</span>
+                                                <span className="text-stone-700 text-sm">{poi.name}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -290,7 +447,7 @@ export const SceneViewerPage = () => {
                                 )}
                             </div>
 
-                            {/* Scene List (только в контексте экскурсии) */}
+                            {/* Scene List */}
                             {isInExcursion && excursion && (
                                 <>
                                     <h4 className="text-stone-900 mb-2" style={{ fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>

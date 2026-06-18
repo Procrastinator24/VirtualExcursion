@@ -19,13 +19,14 @@ namespace VirtualExcursion.DAL.Repositories
             _context = context;
         }
 
-        public async Task<List<Excursion>> Get()
+        public async Task<List<Excursion>> Get(bool onlyPublished)
         {
             return await _context.Excursion
-                .Include(e => e.GuideProfile)
+                .Where(ex => onlyPublished ? ex.IsPublished : true)
                 .Include(e => e.ExcursionScenes)
                     .ThenInclude(es => es.Scene)
                 .Include(e => e.Favourites)
+                .Include(e => e.Workspace)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -33,10 +34,10 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<Excursion?> GetById(int id)
         {
             return await _context.Excursion
-                .Include(e => e.GuideProfile)
                 .Include(e => e.ExcursionScenes)
                     .ThenInclude(es => es.Scene)
                 .Include(e => e.Favourites)
+                .Include(e => e.Workspace)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
@@ -55,17 +56,15 @@ namespace VirtualExcursion.DAL.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<Excursion>> GetByGuideId(int guideId)
-        {
-            return await _context.Excursion
-                .Include(e => e.GuideProfile)
-                .Include(e => e.ExcursionScenes)
-                    .ThenInclude(es => es.Scene)
-                .Include(e => e.Favourites)
-                .Where(e => e.GuideProfileId == guideId)
-                .AsNoTracking()
-                .ToListAsync();
-        }
+        //public async Task<List<Excursion>> GetByGuideId(int guideId)
+        //{
+        //    return await _context.Excursion
+        //        .Include(e => e.ExcursionScenes)
+        //            .ThenInclude(es => es.Scene)
+        //        .Include(e => e.Favourites)
+        //        .AsNoTracking()
+        //        .ToListAsync();
+        //}
 
         public async Task<Excursion> Create(Excursion excursion)
         {

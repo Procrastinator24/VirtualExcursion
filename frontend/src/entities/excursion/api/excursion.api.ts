@@ -12,7 +12,7 @@ import {
 
 export const excursionApi = {
     getByWorkspaceId: (workspaceId: number) => {
-        const response = baseApi.get<ExcursionResponse>(`/excursion/workspace/${workspaceId}`)
+        const response = baseApi.get<ExcursionResponse[]>(`/excursion/workspace/${workspaceId}`)
         return response
     },
     // Получить все экскурсии

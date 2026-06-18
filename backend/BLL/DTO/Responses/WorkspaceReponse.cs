@@ -11,19 +11,19 @@ namespace VirtualExcursion.BLL.DTO.Responses
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? DescriptionShort { get; set; }
-        public string? DescriptionLong { get; set; }
+        //public string? DescriptionLong { get; set; }
         public string? LogoUrl { get; set; }
         public string? bannerUrl { get; set; }
-        public string Type { get; set; } = "personal";
+        //public string Type { get; set; } = "personal";
         public string? Website { get; set; }
         public string? ContactEmail { get; set; }
         public string? Phone { get; set; }
         public string? Address { get; set; }
 
         // Юридическая информация (для верификации)
-        public string? LegalName { get; set; }
-        public string? Inn { get; set; }
-        public string? Ogrn { get; set; }
+        //public string? LegalName { get; set; }
+        //public string? Inn { get; set; }
+        //public string? Ogrn { get; set; }
 
         // Настройки видимости
         public bool ShowContactInfo { get; set; }

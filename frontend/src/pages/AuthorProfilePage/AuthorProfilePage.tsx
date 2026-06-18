@@ -69,7 +69,9 @@ export function AuthorProfilePage() {
                                 <ImageWithFallback src={ex.thumbnailUrl} alt={ex.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 <div className="absolute top-3 left-3 flex gap-1.5">
                                     {/*{ex.contentType.slice(0, 2).map((t) => (*/}
-                                        <span key={ex.contentType} className={`px-2 py-0.5 rounded-md ${sceneTypeColors[ex.contentType]}`} style={{ fontSize: 10, fontWeight: 500 }}>{sceneTypeLabels[ex.contentType]}</span>
+                                        <span key={ex.id} className={`px-2 py-0.5 rounded-md`} style={{ fontSize: 10, fontWeight: 500 }}></span>
+                                        
+                                        {/* <span key={ex.id} className={`px-2 py-0.5 rounded-md ${sceneTypeColors[ex.contentType]}`} style={{ fontSize: 10, fontWeight: 500 }}>{sceneTypeLabels[ex.contentType]}</span> */}
                                     {/* ))}*/}
                                 </div>
                             </div>
@@ -77,7 +79,7 @@ export function AuthorProfilePage() {
                                 <h3 className="text-stone-900" style={{ fontSize: 15, fontWeight: 600 }}>{ex.title}</h3>
                                 <div className="flex items-center justify-between mt-2 text-stone-400" style={{ fontSize: 12 }}>
                                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {ex.duration}</span>
-                                    <span className="flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {ex.rating}</span>
+                                    <span className="flex items-center gap-1"><Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {ex.favouritesCount}</span>
                                 </div>
                             </div>
                         </Link>

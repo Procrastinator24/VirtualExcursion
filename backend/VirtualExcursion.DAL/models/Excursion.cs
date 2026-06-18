@@ -22,7 +22,9 @@ namespace VirtualExcursion.DAL.models
         [MaxLength(500)]
         public string? ThumbnailUrl { get; set; }
 
-        public string? Duration { get; set; }  // "30-45 min", "Under 30 min" и т.д.
+        public string? Duration { get; set; }  
+        public string? City { get;set; }
+        public string? Theme { get; set; }
 
         public int ViewCount { get; set; } = 0;
 
@@ -33,14 +35,13 @@ namespace VirtualExcursion.DAL.models
 
 
         
-        // Внешние ключи
-        public int GuideProfileId { get; set; }  // гид, создавший экскурсию (опционально)
+        
         public int? WorkspaceId { get; set; }
 
 
         // Navigation properties
         public virtual Workspace Workspace { get; set; }
-        public virtual GuideProfile? GuideProfile { get; set; }
+        //public virtual GuideProfile? GuideProfile { get; set; }
         public virtual ICollection<ExcursionScene> ExcursionScenes { get; set; } = new List<ExcursionScene>();
         public virtual ICollection<Favourite> Favourites { get; set; } = new List<Favourite>();
         public virtual ICollection<ExcursionTag> ExcursionTags { get; set; } = new List<ExcursionTag>();

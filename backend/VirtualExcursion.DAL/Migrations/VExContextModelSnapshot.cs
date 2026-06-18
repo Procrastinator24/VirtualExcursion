@@ -30,6 +30,9 @@ namespace VirtualExcursion.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -41,11 +44,11 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Property<string>("Duration")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GuideProfileId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Theme")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ThumbnailUrl")
                         .HasMaxLength(500)
@@ -66,8 +69,6 @@ namespace VirtualExcursion.DAL.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GuideProfileId");
 
                     b.HasIndex("WorkspaceId");
 
@@ -138,7 +139,7 @@ namespace VirtualExcursion.DAL.Migrations
                     b.ToTable("Favourite");
                 });
 
-            modelBuilder.Entity("VirtualExcursion.DAL.models.GuideProfile", b =>
+            modelBuilder.Entity("VirtualExcursion.DAL.models.ImageScene", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -146,44 +147,25 @@ namespace VirtualExcursion.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsOrganization")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LogoUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("OrganizationName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Phone")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
+                    b.Property<int?>("Height")
                         .HasColumnType("int");
 
-                    b.Property<string>("Website")
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SceneId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
+                    b.HasIndex("SceneId")
                         .IsUnique();
 
-                    b.ToTable("GuideProfiles");
+                    b.ToTable("ImageScenes");
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.ModelScene", b =>
@@ -283,6 +265,29 @@ namespace VirtualExcursion.DAL.Migrations
                     b.HasIndex("SceneId");
 
                     b.ToTable("PointsOfInterest");
+                });
+
+            modelBuilder.Entity("VirtualExcursion.DAL.models.PanoramaScene", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PanoramaUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SceneId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SceneId")
+                        .IsUnique();
+
+                    b.ToTable("PanoramaScenes");
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Scene", b =>
@@ -404,6 +409,10 @@ namespace VirtualExcursion.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AvatarUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -411,6 +420,9 @@ namespace VirtualExcursion.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -421,9 +433,6 @@ namespace VirtualExcursion.DAL.Migrations
 
                     b.Property<DateTime?>("RefreshTokenExpiry")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -436,6 +445,32 @@ namespace VirtualExcursion.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("VirtualExcursion.DAL.models.VideoScene", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("DurationSeconds")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SceneId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VideoUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SceneId")
+                        .IsUnique();
+
+                    b.ToTable("VideoScenes");
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Workspace", b =>
@@ -454,73 +489,44 @@ namespace VirtualExcursion.DAL.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("City")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("ContactEmail")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Country")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("DescriptionLong")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("DescriptionShort")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("ExcursionsCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Inn")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("LegalName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("MembersCount")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("Ogrn")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<int>("OwnerId")
                         .HasColumnType("int");
-
-                    b.Property<string>("PassportNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("PassportSeries")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("RegistrationCertificateUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<string>("RejectionReason")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("ScenesCount")
-                        .HasColumnType("int");
 
                     b.Property<bool>("ShowContactInfo")
                         .HasColumnType("bit");
@@ -536,17 +542,6 @@ namespace VirtualExcursion.DAL.Migrations
 
                     b.Property<bool>("ShowSite")
                         .HasColumnType("bit");
-
-                    b.Property<string>("TaxCertificateUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasDefaultValue("personal");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -574,8 +569,6 @@ namespace VirtualExcursion.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
-
-                    b.HasIndex("Type");
 
                     b.HasIndex("VerificationStatus");
 
@@ -627,18 +620,10 @@ namespace VirtualExcursion.DAL.Migrations
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Excursion", b =>
                 {
-                    b.HasOne("VirtualExcursion.DAL.models.GuideProfile", "GuideProfile")
-                        .WithMany("Excursions")
-                        .HasForeignKey("GuideProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("VirtualExcursion.DAL.models.Workspace", "Workspace")
                         .WithMany("Excursions")
                         .HasForeignKey("WorkspaceId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("GuideProfile");
 
                     b.Navigation("Workspace");
                 });
@@ -704,15 +689,15 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("VirtualExcursion.DAL.models.GuideProfile", b =>
+            modelBuilder.Entity("VirtualExcursion.DAL.models.ImageScene", b =>
                 {
-                    b.HasOne("VirtualExcursion.DAL.models.User", "User")
-                        .WithOne("GuideProfile")
-                        .HasForeignKey("VirtualExcursion.DAL.models.GuideProfile", "UserId")
+                    b.HasOne("VirtualExcursion.DAL.models.Scene", "Scene")
+                        .WithOne("ImageScene")
+                        .HasForeignKey("VirtualExcursion.DAL.models.ImageScene", "SceneId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Scene");
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.ModelScene", b =>
@@ -741,20 +726,23 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Navigation("Scene");
                 });
 
-            modelBuilder.Entity("VirtualExcursion.DAL.models.Scene", b =>
+            modelBuilder.Entity("VirtualExcursion.DAL.models.PanoramaScene", b =>
                 {
-                    b.HasOne("VirtualExcursion.DAL.models.GuideProfile", "Author")
-                        .WithMany("Scenes")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("VirtualExcursion.DAL.models.Scene", "Scene")
+                        .WithOne("PanoramaScene")
+                        .HasForeignKey("VirtualExcursion.DAL.models.PanoramaScene", "SceneId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Scene");
+                });
+
+            modelBuilder.Entity("VirtualExcursion.DAL.models.Scene", b =>
+                {
                     b.HasOne("VirtualExcursion.DAL.models.Workspace", "Workspace")
                         .WithMany("Scenes")
                         .HasForeignKey("WorkspaceId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Author");
 
                     b.Navigation("Workspace");
                 });
@@ -776,6 +764,17 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Navigation("Scene");
 
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("VirtualExcursion.DAL.models.VideoScene", b =>
+                {
+                    b.HasOne("VirtualExcursion.DAL.models.Scene", "Scene")
+                        .WithOne("VideoScene")
+                        .HasForeignKey("VirtualExcursion.DAL.models.VideoScene", "SceneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Scene");
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Workspace", b =>
@@ -830,13 +829,6 @@ namespace VirtualExcursion.DAL.Migrations
                     b.Navigation("Favourites");
                 });
 
-            modelBuilder.Entity("VirtualExcursion.DAL.models.GuideProfile", b =>
-                {
-                    b.Navigation("Excursions");
-
-                    b.Navigation("Scenes");
-                });
-
             modelBuilder.Entity("VirtualExcursion.DAL.models.ModelScene", b =>
                 {
                     b.Navigation("PointsOfInterest");
@@ -846,11 +838,17 @@ namespace VirtualExcursion.DAL.Migrations
                 {
                     b.Navigation("ExcursionScenes");
 
+                    b.Navigation("ImageScene");
+
                     b.Navigation("ModelScene");
+
+                    b.Navigation("PanoramaScene");
 
                     b.Navigation("PointsOfInterest");
 
                     b.Navigation("SceneTags");
+
+                    b.Navigation("VideoScene");
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Tag", b =>
@@ -863,9 +861,6 @@ namespace VirtualExcursion.DAL.Migrations
             modelBuilder.Entity("VirtualExcursion.DAL.models.User", b =>
                 {
                     b.Navigation("Favourites");
-
-                    b.Navigation("GuideProfile")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("VirtualExcursion.DAL.models.Workspace", b =>

@@ -35,7 +35,7 @@ namespace VirtualExcursion.DAL.Repositories
 
         public async Task<bool> Delete(int id)
         {
-            var user = await _context.Users.Include(u => u.GuideProfile).FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
                 return false;
             _context.Users.Remove(user);
@@ -46,7 +46,6 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<User> GetByEmail(string email)
         {
             return await _context.Users
-                .Include(u => u.GuideProfile)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
@@ -54,7 +53,6 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<User> GetById(int id)
         {
             return await _context.Users
-                .Include(u => u.GuideProfile)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
@@ -62,7 +60,6 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<List<User>> GetUsers()
         {
             return await _context.Users
-                .Include (u => u.GuideProfile)
                 .AsNoTracking().ToListAsync();
         }
 
@@ -70,12 +67,21 @@ namespace VirtualExcursion.DAL.Repositories
         {
             if (user == null)
                 throw new ArgumentNullException(nameof(user));
+
             var existing = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
-            if(existing == null)
-                throw new KeyNotFoundException($"Пользователь не найден");
-            existing.Username = user.Username; 
+            if (existing == null)
+                throw new KeyNotFoundException($"Пользователь с id {user.Id} не найден");
+
+            // Обновляем только те поля, которые были изменены
+            existing.Username = user.Username;
             existing.Email = user.Email;
-            existing.Role = user.Role;
+            existing.IsAdmin = user.IsAdmin;
+            existing.AvatarUrl = user.AvatarUrl;
+
+            // Не обновляем:
+            // - PasswordHash (отдельный метод для смены пароля)
+            // - RefreshToken и RefreshTokenExpiry (отдельный метод)
+            // - CreatedAt (не должно меняться)
 
             await _context.SaveChangesAsync();
             return existing;

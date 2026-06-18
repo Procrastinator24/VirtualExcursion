@@ -32,6 +32,7 @@ namespace VirtualExcursion.DAL.Repositories
         public async Task<Workspace?> GetById(int id)
         {
             return await _context.Workspaces
+                .Include(w => w.Excursions) .Include(w => w.Scenes)
                 .Include(w => w.Owner)
                 .Include(w => w.Members)
                 .ThenInclude(m => m.User)
@@ -77,9 +78,9 @@ namespace VirtualExcursion.DAL.Repositories
 
             existing.Name = workspace.Name;
             existing.DescriptionShort = workspace.DescriptionShort;
-            existing.DescriptionLong = workspace.DescriptionLong;
+            //existing.DescriptionLong = workspace.DescriptionLong;
             existing.LogoUrl = workspace.LogoUrl;
-            existing.Type = workspace.Type;
+            existing.BannerUrl = workspace.BannerUrl;
             existing.Website = workspace.Website;
             existing.ContactEmail = workspace.ContactEmail;
             existing.Phone = workspace.Phone;

@@ -2,11 +2,10 @@ export interface User{
     id: number
     email: string
     name: string
-    role: string
-    isApproved: boolean
-    guideProfileId: 1
+    avatarUrl?: string;
 }
 export interface LoginResponse{
+    accessToken: string;
     id: number
     email: string
     name: string

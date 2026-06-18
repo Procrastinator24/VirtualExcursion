@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Modal } from '@shared/ui/Modal/Modal';
+import { Modal } from '@shared/ui/modal/Modal';
 import {SettingsModalLayout, TabConfig} from './ui/SettingsModalLayout.tsx';
-import { InfoTab } from './ui/tabs/InfoTab';
+import { InfoTab } from './ui/tabs/infoTab.tsx';
 import {DisplayTab} from "./ui/tabs/DisplayTab.tsx"
 import {VerificationTab} from "./ui/tabs/VerificationTab.tsx"
 import { workspaceApi } from '@entities/workspace';
-import type { WorkspaceResponse } from '../../../../entities/workspace';
+import type { WorkspaceResponse } from '@entities/workspace';
 import {useAuth} from "../../../../app/Contexts";
 
 interface WorkspaceSettingsModalProps {
@@ -21,24 +21,25 @@ export const WorkspaceSettingsModal = ({
                                            workspace,
                                            onWorkspaceUpdate,
                                        }: WorkspaceSettingsModalProps) => {
-    console.log("modal render:", isOpen)
     const [activeTab, setActiveTab] = useState('info');
     const [saving, setSaving] = useState(false);
     const {user} = useAuth()
-    const {isOwner, setIsOwner} = useState<boolean>(true);
+    //const {isOwner} = useState<boolean>(true);
     const handleSaveInfo = async (data: any) => {
         setSaving(true);
         try {
+            console.log(data, "отправляем такие данные на апдейт")
             const response = await workspaceApi.update({
                 id: workspace.id,
                 name: data.name,
                 descriptionShort: data.shortDescription,
                 descriptionLong: workspace.descriptionLong,
                 logoUrl: data.logoUrl,
+                bannerUrl: data.bannerUrl,
                 website: data.website,
                 phone: data.phone,
-                address: data.address,
-                // TODO: добавить city, country, bannerUrl
+                city: data.city,
+                country: data.country
             });
             onWorkspaceUpdate(response.data);
             onClose();
@@ -79,7 +80,7 @@ export const WorkspaceSettingsModal = ({
                         city: '', // TODO: добавить поле city в WorkspaceResponse
                         country: '', // TODO: добавить поле country в WorkspaceResponse
                         logoUrl: workspace.logoUrl,
-                        coverUrl: workspace.bannerUrl,
+                        bannerUrl: workspace.bannerUrl,
                     }}
                     onSave={handleSaveInfo}
                     saving={saving}
@@ -93,13 +94,13 @@ export const WorkspaceSettingsModal = ({
                 <DisplayTab
                     initialSettings={{
                         showInAuthorsCatalog: workspace.showInAuthorsCatalog ?? true,
-                        showExcursionsOnPage: workspace.showExcursionsOnPage ?? true,
-                        showExhibitsOnPage: workspace.showExhibitsOnPage ?? true,
+                        showExcursionsOnPage: workspace.showExcursions ?? true,
+                        showExhibitsOnPage: workspace.showExhibits ?? true,
                         showContactInfo: workspace.showContactInfo ?? true,
                         showWebsite: workspace.showSite ?? true,
                     }}
                     verificationStatus={workspace.verificationStatus}
-                    isPublished={workspace.isPublished}
+                    isPublished={workspace?.isPublished}
                     onSave={handleSaveDisplay}
                     saving={saving}
                 />
@@ -116,14 +117,14 @@ export const WorkspaceSettingsModal = ({
                     applicationDate={workspace.verifiedAt ? new Date(workspace.verifiedAt).toLocaleDateString('ru-RU') : undefined}
                     workspaceType={workspace.type === 'museum' ? 'Музей' : workspace.type === 'personal' ? 'Личное' : 'Команда'}
                     organizationName={workspace.name}
-                    applicantRole={user?.role === 'Guide' ? 'Гид' : 'Пользователь'}
+                    applicantRole={'Пользователь'}
                     applicantEmail={user?.email}
                     documentName="document.pdf"
                     documentUrl="#"
                     comment={workspace.rejectionReason || undefined}
                     onOpenApplication={() => console.log('Open application form')}
                     onEditApplication={() => console.log('Edit application')}
-                    canEdit={isOwner}
+                    canEdit={true}
                 />
             ),
         },

@@ -16,14 +16,16 @@ namespace VirtualExcursion.BLL.DTO.Requests.workspace
         [MaxLength(1000)]
         public string? DescriptionShort { get; set; }
 
-        [MaxLength(2000)]
-        public string? DescriptionLong { get; set; }
+        //[MaxLength(2000)]
+        //public string? DescriptionLong { get; set; }
 
         [MaxLength(500)]
         public string? LogoUrl { get; set; }
+        [MaxLength(500)]
+        public string? BannerUrl { get; set; }  
 
-        [MaxLength(50)]
-        public string? Type { get; set; } = "personal";
+        //[MaxLength(50)]
+        //public string? Type { get; set; } = "personal";
 
         [MaxLength(200)]
         public string? Website { get; set; }
@@ -33,6 +35,7 @@ namespace VirtualExcursion.BLL.DTO.Requests.workspace
 
         [MaxLength(50)]
         public string? Phone { get; set; }
+        public string? City { get; set; }
 
         [MaxLength(300)]
         public string? Address { get; set; }

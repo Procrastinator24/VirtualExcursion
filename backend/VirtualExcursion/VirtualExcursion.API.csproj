@@ -28,4 +28,8 @@
     <ProjectReference Include="..\BLL\VirtualExcursion.BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwRoot\" />
+  </ItemGroup>
+
 </Project>

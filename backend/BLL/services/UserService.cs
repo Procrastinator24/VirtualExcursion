@@ -8,6 +8,7 @@ using VirtualExcursion.BLL.DTO.Requests;
 using VirtualExcursion.BLL.DTO.Responses;
 using VirtualExcursion.BLL.services.interfaces;
 using VirtualExcursion.DAL.models;
+using VirtualExcursion.DAL.Repositories;
 using VirtualExcursion.DAL.Repositories.interfaces;
 
 namespace VirtualExcursion.BLL.services
@@ -58,9 +59,28 @@ namespace VirtualExcursion.BLL.services
 
         public async Task<UserResponse> Update(UpdateUserRequest request)
         {
-            var updatedUser = _mapper.Map<User>(request);
-            var response = _mapper.Map<UserResponse>(await _repository.Update(updatedUser));
-            return response;
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            var existing = await _repository.GetById(request.Id);
+            if (existing == null)
+                throw new KeyNotFoundException("Пользователь не найден");
+
+            // Обновляем только то, что пришло
+            if (request.Username != null)
+                existing.Username = request.Username;
+
+            if (request.Email != null)
+                existing.Email = request.Email;
+
+            if (request.AvatarUrl != null)
+                existing.AvatarUrl = request.AvatarUrl;
+
+            if (request.IsAdmin.HasValue)
+                existing.IsAdmin = request.IsAdmin.Value;
+
+            var updated = await _repository.Update(existing);
+            return _mapper.Map<UserResponse>(updated);
         }
     }
 }

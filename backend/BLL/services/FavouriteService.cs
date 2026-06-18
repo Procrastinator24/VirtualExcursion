@@ -46,8 +46,8 @@ namespace VirtualExcursion.BLL.services
             if (request.ExcursionId.HasValue && !await _excursionRepository.Exists(request.ExcursionId.Value))
                 throw new KeyNotFoundException($"Экскурсия с id {request.ExcursionId} не найдена");
 
-            //if (request.SceneId.HasValue && !await _sceneRepository.Exists(request.SceneId.Value))
-            //    throw new KeyNotFoundException($"Сцена с id {request.SceneId} не найдена");
+            if (request.SceneId.HasValue && !await _sceneRepository.Exists(request.SceneId.Value))
+                throw new KeyNotFoundException($"Сцена с id {request.SceneId} не найдена");
 
             // Проверяем, не добавлено ли уже в избранное
             if (request.ExcursionId.HasValue)

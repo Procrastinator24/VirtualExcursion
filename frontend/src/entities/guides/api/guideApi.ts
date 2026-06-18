@@ -24,13 +24,3 @@ export const guideApi = {
 };
 
 // Преобразование для карточек авторов
-export const toAuthorCard = (profile: GuideProfileResponse): AuthorCard => ({
-    id: profile.id,
-    name: profile.isOrganization ? profile.organizationName : profile.name,
-    role: profile.isOrganization ? 'Museum' : 'Guide',
-    avatarUrl: profile.isOrganization ? profile.logoUrl : profile.avatarUrl,
-    bio: profile.description,
-    excursionsCount: profile.excursionsCount,
-    rating: profile.rating,
-    location: profile.address,
-});

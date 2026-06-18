@@ -101,5 +101,63 @@ namespace VirtualExcursion.DAL.Repositories
 
             return await query.AnyAsync();
         }
+
+        /// <summary>
+        /// Добавить тег к сцене
+        /// </summary>
+        public async Task AddToScene(int sceneId, int tagId)
+        {
+            // Проверяем, существует ли сцена
+            var sceneExists = await _context.Scenes.AnyAsync(s => s.Id == sceneId);
+            if (!sceneExists)
+                throw new KeyNotFoundException($"Сцена с id {sceneId} не найдена");
+
+            // Проверяем, существует ли тег
+            var tagExists = await _context.Tags.AnyAsync(t => t.Id == tagId);
+            if (!tagExists)
+                throw new KeyNotFoundException($"Тег с id {tagId} не найден");
+
+            // Проверяем, не добавлен ли уже тег
+            var alreadyExists = await _context.SceneTags
+                .AnyAsync(st => st.SceneId == sceneId && st.TagId == tagId);
+
+            if (alreadyExists)
+                return; // Уже есть, ничего не делаем
+
+            var sceneTag = new SceneTag
+            {
+                SceneId = sceneId,
+                TagId = tagId
+            };
+
+            await _context.SceneTags.AddAsync(sceneTag);
+            await _context.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Удалить тег у сцены
+        /// </summary>
+        public async Task RemoveFromScene(int sceneId, int tagId)
+        {
+            var sceneTag = await _context.SceneTags
+                .FirstOrDefaultAsync(st => st.SceneId == sceneId && st.TagId == tagId);
+
+            if (sceneTag != null)
+            {
+                _context.SceneTags.Remove(sceneTag);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// Получить все теги сцены
+        /// </summary>
+        public async Task<List<Tag>> GetTagsForScene(int sceneId)
+        {
+            return await _context.SceneTags
+                .Where(st => st.SceneId == sceneId)
+                .Select(st => st.Tag)
+                .ToListAsync();
+        }
     }
 }

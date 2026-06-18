@@ -9,10 +9,10 @@ namespace VirtualExcursion.DAL.Repositories.interfaces
 {
     public interface IExcursionRepository
     {
-        Task<List<Excursion>> Get();
+        Task<List<Excursion>> Get(bool onlyPublished);
         Task<Excursion?> GetById(int id);
         Task<List<Excursion>> GetByWorkspaceId(int workspaceId);
-        Task<List<Excursion>> GetByGuideId(int guideId); // устаревший
+        //Task<List<Excursion>> GetByGuideId(int guideId); // устаревший
         Task<Excursion> Create(Excursion excursion);
         Task<Excursion> Update(Excursion excursion);
         Task<bool> Delete(int id);

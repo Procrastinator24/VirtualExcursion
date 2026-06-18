@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,11 +24,14 @@ namespace VirtualExcursion.API.Controllers
     {
         private readonly IWorkspaceService _workspaceService;
         private readonly ILogger<WorkspaceController> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public WorkspaceController(IWorkspaceService workspaceService, ILogger<WorkspaceController> logger)
+
+        public WorkspaceController(IWorkspaceService workspaceService, IWebHostEnvironment webHostEnvironment, ILogger<WorkspaceController> logger)
         {
             _workspaceService = workspaceService;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         private int GetCurrentUserId()
@@ -50,7 +54,7 @@ namespace VirtualExcursion.API.Controllers
         /// <response code="403">Недостаточно прав. Требуется роль администратора.</response>
         /// <response code="500">Внутренняя ошибка сервера.</response>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<ActionResult<List<WorkspaceResponse>>> GetAll()
         {
             try
@@ -268,6 +272,111 @@ namespace VirtualExcursion.API.Controllers
             {
                 _logger.LogError(ex, "Ошибка при удалении workspace {Id}", id);
                 return StatusCode(500, "Внутренняя ошибка сервера");
+            }
+        }
+        /// <summary>
+        /// Загрузить обложку для экскурсии
+        /// </summary>
+        /// <param name="file">Файл изображения (JPG, JPEG, PNG, WEBP)</param>
+        /// <remarks>
+        /// Загружает изображение на сервер и возвращает URL для доступа к нему.
+        /// Максимальный размер файла — 5 МБ.
+        /// </remarks>
+        /// <response code="200">Файл успешно загружен. Возвращает URL загруженного файла.</response>
+        /// <response code="400">Ошибка: файл не выбран, превышен размер или недопустимый формат.</response>
+        /// <response code="500">Внутренняя ошибка сервера.</response>
+        [HttpPost("upload-thumbnail")]
+        public async Task<IActionResult> UploadThumbnail(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest(new { error = "No file uploaded" });
+
+                // Проверка размера (например, 5 MB)
+                if (file.Length > 5 * 1024 * 1024)
+                    return BadRequest(new { error = "File size exceeds 5 MB" });
+
+                // Проверка типа файла
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                    return BadRequest(new { error = "Invalid file type. Allowed: jpg, jpeg, png, webp" });
+
+                // Папка для загрузок (wwwroot/thumbnails)
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "thumbnails");
+
+                // Создаём папку, если её нет
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // Уникальное имя файла
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Сохраняем файл
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Возвращаем URL для доступа
+                var url = $"/thumbnails/{uniqueFileName}";
+                return Ok(new { url });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading thumbnail");
+                return StatusCode(500, new { error = "Internal server error" });
+            }
+        }
+        /// <summary>
+        /// Загрузить обложку для экскурсии
+        /// </summary>
+        /// <param name="file">Файл изображения (JPG, JPEG, PNG, WEBP)</param>
+        /// <remarks>
+        /// Загружает изображение на сервер и возвращает URL для доступа к нему.
+        /// Максимальный размер файла — 5 МБ.
+        /// </remarks>
+        /// <response code="200">Файл успешно загружен. Возвращает URL загруженного файла.</response>
+        /// <response code="400">Ошибка: файл не выбран, превышен размер или недопустимый формат.</response>
+        /// <response code="500">Внутренняя ошибка сервера.</response>
+        [HttpPost("upload-banner")]
+        public async Task<IActionResult> UploadBanner(IFormFile file)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest(new { error = "No file uploaded" });
+
+                if (file.Length > 5 * 1024 * 1024)
+                    return BadRequest(new { error = "File size exceeds 5 MB" });
+
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                    return BadRequest(new { error = "Invalid file type. Allowed: jpg, jpeg, png, webp" });
+
+                var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "banners");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                var url = $"/banners/{uniqueFileName}";
+                return Ok(new { url });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading thumbnail");
+                return StatusCode(500, new { error = "Internal server error" });
             }
         }
     }

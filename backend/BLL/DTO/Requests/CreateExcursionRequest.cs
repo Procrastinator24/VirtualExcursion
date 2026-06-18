@@ -20,6 +20,7 @@ namespace VirtualExcursion.BLL.DTO.Requests
         public string? ThumbnailUrl { get; set; }
 
         public string? Duration { get; set; }
+        public int WorkspaceId {  get; set; }
 
         public bool IsPublished { get; set; } = false;
         public List<int> SceneIds { get; set; } = new();  

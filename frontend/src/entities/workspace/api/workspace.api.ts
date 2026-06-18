@@ -92,4 +92,13 @@ export const workspaceApi = {
      */
     removeMember: (workspaceId: number, userId: number) =>
         baseApi.delete<void>(`/workspace/${workspaceId}/member/${userId}`),
+
+    uploadThumbnail: (formData: FormData) =>
+        baseApi.post<{ url: string }>('/workspace/upload-thumbnail', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        }),
+    uploadBanner: (formData: FormData) =>
+        baseApi.post<{ url: string }>('/workspace/upload-banner', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        }),
 };

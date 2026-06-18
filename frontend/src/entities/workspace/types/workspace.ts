@@ -1,6 +1,7 @@
 export type VerificationStatus = 'NotSubmitted' | 'Pending' | 'Approved' | 'Rejected';
 
 export interface WorkspaceResponse {
+    showInAuthorsCatalog: boolean;
     id: number;
     name: string;
     descriptionShort?: string;
@@ -28,6 +29,8 @@ export interface WorkspaceResponse {
     // Владелец
     ownerId: number;
     ownerName: string;
+    workspaceId: number;
+    workspaceName: string;
 
     // Верификация
     verificationStatus: VerificationStatus;
@@ -42,6 +45,7 @@ export interface WorkspaceResponse {
     membersCount: number;
     excursionsCount: number;
     scenesCount: number;
+    isPublished: boolean;
 }
 
 export interface CreateWorkspaceRequest {
@@ -49,7 +53,7 @@ export interface CreateWorkspaceRequest {
     descriptionShort?: string;
     descriptionLong?: string;
     logoUrl?: string;
-    type?: WorkspaceType;
+    bannerUrl?: string;
     website?: string;
     contactEmail?: string;
     phone?: string;
@@ -67,11 +71,13 @@ export interface UpdateWorkspaceRequest {
     descriptionShort?: string;
     descriptionLong?: string;
     logoUrl?: string;
-    type?: WorkspaceType;
+    bannerUrl?: string;
     website?: string;
     contactEmail?: string;
     phone?: string;
     address?: string;
+    city?: string;
+    country?: string;
     showContactInfo?: boolean;
     showExhibits?: boolean;
     showExcursions?: boolean;

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { workspaceApi } from '@entities/workspace';
+import {ImageWithFallback} from "../../../../../../shared/ui/imgWrapper/ImageWithFallback.tsx";
 
 interface InfoTabProps {
     initialData?: {
@@ -10,7 +12,7 @@ interface InfoTabProps {
         city: string;
         country: string;
         logoUrl?: string;
-        coverUrl?: string;
+        bannerUrl?: string;
     };
     onSave?: (data: any) => void;
     saving?: boolean;
@@ -25,41 +27,84 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
         address: initialData?.address || '',
         city: initialData?.city || '',
         country: initialData?.country || '',
+        logoUrl: initialData?.logoUrl || '',
+        bannerUrl: initialData?.bannerUrl || '',
     });
 
+    const [uploadingLogo, setUploadingLogo] = useState(false);
+    const [uploadingCover, setUploadingCover] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(initialData?.logoUrl || null);
-    const [coverPreview, setCoverPreview] = useState<string | null>(initialData?.coverUrl || null);
+    const [coverPreview, setCoverPreview] = useState<string | null>(initialData?.bannerUrl || null);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const preview = URL.createObjectURL(file);
-            setLogoPreview(preview);
-            // TODO: загрузить файл на сервер
+        if (!file) return;
+
+        // Показываем локальное превью сразу
+        const localPreview = URL.createObjectURL(file);
+        setLogoPreview(localPreview);
+        setUploadingLogo(true);
+        console.log("tryUploadLOGO")
+        try {
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            const response = await workspaceApi.uploadThumbnail(uploadFormData);
+            const uploadedUrl = response.data.url;
+            console.log(uploadedUrl)
+            // Сохраняем URL от сервера в formData
+            setFormData(prev => ({ ...prev, logoUrl: uploadedUrl }));
+            // Обновляем превью на URL от сервера (опционально, можно оставить локальное)
+            setLogoPreview(uploadedUrl);
+        } catch (error) {
+            console.error('Failed to upload logo:', error);
+            // В случае ошибки — удаляем превью
+            setLogoPreview(initialData?.logoUrl || null);
+        } finally {
+            setUploadingLogo(false);
         }
     };
 
-    const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const preview = URL.createObjectURL(file);
-            setCoverPreview(preview);
-            // TODO: загрузить файл на сервер
+        if (!file) return;
+
+        // Показываем локальное превью сразу
+        const localPreview = URL.createObjectURL(file);
+        setCoverPreview(localPreview);
+        setUploadingCover(true);
+
+        try {
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            const response = await workspaceApi.uploadBanner(uploadFormData);
+            const uploadedUrl = response.data.url;
+
+            // Сохраняем URL от сервера в formData
+            setFormData(prev => ({ ...prev, bannerUrl: uploadedUrl }));
+            console.log(uploadedUrl, formData.bannerUrl)
+            // Обновляем превью на URL от сервера
+            setCoverPreview(uploadedUrl);
+        } catch (error) {
+            console.error('Failed to upload cover:', error);
+            // В случае ошибки — удаляем превью
+            setCoverPreview(initialData?.bannerUrl || null);
+        } finally {
+            setUploadingCover(false);
         }
     };
 
     const handleLogoRemove = () => {
         setLogoPreview(null);
-        // TODO: удалить логотип на сервере
+        setFormData(prev => ({ ...prev, logoUrl: '' }));
     };
 
     const handleCoverRemove = () => {
         setCoverPreview(null);
-        // TODO: удалить обложку на сервере
+        setFormData(prev => ({ ...prev, bannerUrl: '' }));
     };
 
     const handleSave = () => {
@@ -188,7 +233,7 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
                     <div className="self-stretch flex flex-col justify-start items-start gap-3">
                         <div className="size-28 px-3 bg-neutral-100 rounded-md outline outline-2 outline-offset-[-2px] outline-gray-200 inline-flex justify-center items-center">
                             {logoPreview ? (
-                                <img src={logoPreview} alt="Логотип" className="size-20 rounded-sm object-cover" />
+                                <ImageWithFallback src={logoPreview} alt="Логотип" className="size-20 rounded-sm object-cover" />
                             ) : (
                                 <div className="size-20 bg-gray-200 rounded-sm" />
                             )}
@@ -198,7 +243,7 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
                                 <label className="size- px-2.5 py-[5px] bg-gray-50 rounded-[5px] outline outline-1 outline-offset-[-1px] outline-gray-200 flex justify-start items-center gap-1.5 cursor-pointer hover:bg-gray-100 transition-colors">
                                     <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
                                     <div className="text-center justify-start text-zinc-900 text-sm font-medium font-['Inter'] leading-5">
-                                        Загрузить
+                                        {uploadingLogo ? 'Загрузка...' : 'Загрузить'}
                                     </div>
                                 </label>
                                 {logoPreview && (
@@ -236,7 +281,7 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
                     <div className="flex flex-col justify-start items-start gap-3">
                         <div className="w-96 bg-neutral-100 rounded-md outline outline-2 outline-offset-[-2px] outline-gray-200 inline-flex justify-center items-center overflow-hidden">
                             {coverPreview ? (
-                                <img src={coverPreview} alt="Обложка" className="w-60 h-36 object-cover" />
+                                <ImageWithFallback src={coverPreview} alt="Обложка" className="w-60 h-36 object-cover" />
                             ) : (
                                 <div className="w-60 h-36 bg-gray-200" />
                             )}
@@ -245,7 +290,7 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
                             <label className="w-24 h-7 relative bg-gray-50 rounded-[5px] outline outline-1 outline-offset-[-1px] outline-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
                                 <input type="file" accept="image/*" onChange={handleCoverUpload} className="hidden" />
                                 <span className="text-center justify-start text-zinc-900 text-sm font-medium font-['Inter'] leading-4">
-                                    Загрузить
+                                    {uploadingCover ? 'Загрузка...' : 'Загрузить'}
                                 </span>
                             </label>
                             {coverPreview && (
@@ -277,7 +322,25 @@ export const InfoTab = ({ initialData, onSave, saving }: InfoTabProps) => {
 
             {/* Кнопки */}
             <div className="pt-5 inline-flex justify-start items-center gap-2.5">
-                <button className="px-4 py-3 bg-gray-50 rounded-[5px] outline outline-[0.80px] outline-offset-[-0.80px] outline-gray-200 flex justify-center items-center gap-3 hover:bg-gray-100 transition-colors">
+                <button
+                    onClick={() => {
+                        // Сброс к исходным данным
+                        setFormData({
+                            name: initialData?.name || '',
+                            shortDescription: initialData?.shortDescription || '',
+                            website: initialData?.website || '',
+                            phone: initialData?.phone || '',
+                            address: initialData?.address || '',
+                            city: initialData?.city || '',
+                            country: initialData?.country || '',
+                            logoUrl: initialData?.logoUrl || '',
+                            bannerUrl: initialData?.bannerUrl || '',
+                        });
+                        setLogoPreview(initialData?.logoUrl || null);
+                        setCoverPreview(initialData?.bannerUrl || null);
+                    }}
+                    className="px-4 py-3 bg-gray-50 rounded-[5px] outline outline-1 outline-gray-200 flex justify-center items-center gap-3 hover:bg-gray-100 transition-colors"
+                >
                     <span className="text-center justify-start text-zinc-900 text-base font-medium font-['Inter'] leading-6">
                         Отменить
                     </span>

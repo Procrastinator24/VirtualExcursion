@@ -21,7 +21,7 @@ namespace VirtualExcursion.API.Controllers
         }
 
         /// <summary>
-        /// Получить все модели сцен
+        /// Получить все 3д сцен
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<List<ModelSceneResponse>>> GetAll()
@@ -29,7 +29,7 @@ namespace VirtualExcursion.API.Controllers
             try
             {
                 var result = await _service.Get();
-                _logger.LogInformation("Успешно получено {Count} моделей сцен", result.Count);
+                _logger.LogInformation("Успешно получено {Count} 3д сцен", result.Count);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -40,7 +40,7 @@ namespace VirtualExcursion.API.Controllers
         }
 
         /// <summary>
-        /// Получить модель сцены по id
+        /// Получить 3д сцену по id
         /// </summary>
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ModelSceneResponse>> GetById(int id)
@@ -62,7 +62,7 @@ namespace VirtualExcursion.API.Controllers
         }
 
         /// <summary>
-        /// Получить модель сцены по id сцены
+        /// Получить 3д сцену по id базовой сцены
         /// </summary>
         [HttpGet("scene/{sceneId:int}")]
         public async Task<ActionResult<ModelSceneResponse>> GetBySceneId(int sceneId)
@@ -84,7 +84,7 @@ namespace VirtualExcursion.API.Controllers
         }
 
         /// <summary>
-        /// Создать новую модель сцены
+        /// Создать новую 3д сцену
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<ModelSceneResponse>> Create([FromBody] CreateModelSceneRequest request)
@@ -113,7 +113,7 @@ namespace VirtualExcursion.API.Controllers
         }
 
         /// <summary>
-        /// Обновить модель сцены
+        /// Обновить 3д сцену
         /// </summary>
         [HttpPut]
         public async Task<ActionResult<ModelSceneResponse>> Update([FromBody] UpdateModelSceneRequest request)
@@ -146,7 +146,7 @@ namespace VirtualExcursion.API.Controllers
         }
 
         /// <summary>
-        /// Удалить модель сцены
+        /// Удалить 3д сцену
         /// </summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)

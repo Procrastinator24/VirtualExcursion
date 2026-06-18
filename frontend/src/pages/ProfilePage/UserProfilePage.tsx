@@ -9,13 +9,16 @@ import type {WorkspaceResponse} from "../../entities/workspace";
 import {workspaceApi} from "../../entities/workspace";
 import {CreateWorkspaceButton} from "./ui/CreateWorkspaceButton.tsx";
 import {WorkspaceCard} from "./ui/WorkspaceCard.tsx";
+import {UserApi} from "@entities/user"
+import {AvatarUpload} from "./ui/AvatarUpload.tsx";
+import {WorkspaceCreateModal} from "../../entities/workspace/ui/CreateWorkspaceModal.tsx";
 
 type TabType = "saved" | "favorites" | "created" | "exhibits" | "settings";
 
 export const UserProfilePage = () => {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const { favourites, toggleFavourite } = useFavourites();
-
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [tab, setTab] = useState<TabType>("saved");
     const [workspaces, setWorkspaces] = useState<WorkspaceResponse[]>([]);
     const [loading, setLoading] = useState(true);
@@ -35,13 +38,26 @@ export const UserProfilePage = () => {
             }
         };
         loadWorkspaces();
-    }, [user]);
+    }, [user, isCreateModalOpen]);
+    const handleAvatarUpdate = async (newAvatarUrl: string) => {
+        try {
+            // Обновляем пользователя в контексте
+            if (user) {
+                const updatedUser = { ...user, avatarUrl: newAvatarUrl };
+                setUser(updatedUser);
 
+                // Также обновляем в localStorage
+                localStorage.setItem('user', JSON.stringify(updatedUser));
 
-    const favoriteExcursions = favourites; // то же самое
+                // Опционально: отправить запрос на обновление пользователя на бэкенде
+                await UserApi.update({ id: user.id, avatarUrl: newAvatarUrl });
+            }
+        } catch (error) {
+            console.error('Failed to update avatar:', error);
+        }
+    };
 
-    // Сцены из созданных экскурсий для вкладки "Exhibits"
-
+    const favoriteExcursions = favourites;
 
     // Статистика
     const stats = {
@@ -65,19 +81,15 @@ export const UserProfilePage = () => {
             {/* Header */}
             <div className="bg-white rounded-xl border border-stone-200/60 p-6 md:p-8 mb-8">
                 <div className="flex flex-col md:flex-row items-start gap-6">
-                    <div className="relative">
-                        <ImageWithFallback
-                            src={user.avatarUrl || '/placeholder-avatar.jpg'}
-                            alt={user.name}
-                            className="w-24 h-24 rounded-full object-cover"
+                    <AvatarUpload
+                        currentAvatarUrl={user.avatarUrl}
+                        userName={user.name}
+                        onAvatarUpdate={handleAvatarUpdate}
                         />
-                        <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-stone-900 text-white flex items-center justify-center border-2 border-white">
-                            <Camera className="w-3.5 h-3.5" />
-                        </button>
-                    </div>
+
                     <div className="flex-1">
                         <h1 className="text-stone-900" style={{ fontSize: 26, fontWeight: 600 }}>
-                            {user.userName}
+                            {user.name}
                         </h1>
                         <span className="text-stone-500" style={{ fontSize: 14 }}>
                             {user.email}
@@ -86,23 +98,8 @@ export const UserProfilePage = () => {
                             <span className="flex items-center gap-1.5">
                                 <Heart className="w-4 h-4" /> {stats.favoritesCount} избранное
                             </span>
-                            {/*<span className="flex items-center gap-1.5">*/}
-                            {/*    <BookOpen className="w-4 h-4" /> {stats.createdCount} создано*/}
-                            {/*</span>*/}
-                            {/*<span className="flex items-center gap-1.5">*/}
-                            {/*    <Layers className="w-4 h-4" /> {stats.exhibitsCount} сцен*/}
-                            {/*</span>*/}
                         </div>
                     </div>
-                    {user.role === 'Guide' && (
-                        <Link
-                            to="/dashboard"
-                            className="px-5 py-2.5 bg-stone-900 text-white rounded-lg no-underline hover:bg-stone-800 transition-colors"
-                            style={{ fontSize: 13, fontWeight: 500 }}
-                        >
-                            Панель гида
-                        </Link>
-                    )}
                 </div>
             </div>
 
@@ -115,7 +112,7 @@ export const UserProfilePage = () => {
                 ] as const).map((t) => (
                     <button
                         key={t.key}
-                        onClick={() => setTab(t.key)}
+                        onClick={() => setTab(t.key as TabType)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl whitespace-nowrap transition-colors ${
                             tab === t.key
                                 ? "bg-stone-900 text-white"
@@ -135,9 +132,6 @@ export const UserProfilePage = () => {
                         <ExcursionCard
                             key={ex.id}
                             excursion={ex}
-                            showFavouriteButton
-                            onFavouriteToggle={() => toggleFavourite(ex.id)}
-                            isFavourite={true}
                         />
                     ))}
                     {((tab === "favorites" && favoriteExcursions.length === 0)) && (
@@ -149,7 +143,7 @@ export const UserProfilePage = () => {
             )}
 
 
-            {tab === "workspaces" && (
+            {tab === "workspaces" as TabType && (
                 <div>
                     {/* Заголовок и кнопка */}
                     <div className="flex items-center justify-between mb-5">
@@ -179,17 +173,24 @@ export const UserProfilePage = () => {
                             <div className="mt-4 flex justify-center">
                                 <CreateWorkspaceButton
                                     onClick={() => {
-                                        console.log('Create workspace from empty state');
+                                        setIsCreateModalOpen(true);
                                     }}
                                 />
                             </div>
                         </div>
                     )}
-
+                    <WorkspaceCreateModal
+                        isOpen={isCreateModalOpen}
+                        onClose={() => setIsCreateModalOpen(false)}
+                        onSuccess={() => {
+                            // Обновить список пространств
+                            setIsCreateModalOpen(false)
+                        }}
+                    />
                     <div className="mt-4 flex justify-start">
                         <CreateWorkspaceButton
                             onClick={() => {
-                                console.log('Create another workspace');
+                                setIsCreateModalOpen(true);
                             }}
                         />
                     </div>
@@ -206,8 +207,8 @@ export const UserProfilePage = () => {
                         {[
                             { label: "Имя", name: "name", value: user.name },
                             { label: "Email", name: "email", value: user.email },
-                            { label: "О себе", name: "bio", value: user.bio || "" },
-                            { label: "Организация", name: "institution", value: user.institution || "" },
+                            // { label: "О себе", name: "bio", value: user.bio || "" },
+
                         ].map((field) => (
                             <div key={field.name}>
                                 <label className="text-stone-500 block mb-1.5" style={{ fontSize: 13 }}>

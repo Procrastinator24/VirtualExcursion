@@ -11,21 +11,22 @@ namespace VirtualExcursion.BLL.DTO.Responses
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public string? Author { get;set; }
         public string? ThumbnailUrl { get; set; }
         public string? Duration { get; set; }
+        public string? Theme { get; set; }
+        public string? City { get; set; }
         public int ViewCount { get; set; }
         public bool IsPublished { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public int? workspaceId { get; set; }   
         public string? workspaceName { get; set; }
-        public int? GuideId { get; set; }
-        public string? GuideName { get; set; }
         public List<ExcursionSceneResponse> Scenes { get; set; } = new();
         public int FavouritesCount { get; set; }
-        public bool IsFavourite { get; set; }  // для текущего пользователя
-        public string? ContentType { get; set; }  // "3d", "vr", "panorama", "video", "image"
-        public List<string> TagsNames { get; set; } = new();  // имена тегов для отображения
+        public bool IsFavourite { get; set; }
+        public List<string>? ContentTypes { get; set; } = new();
+        public List<string> TagsNames { get; set; } = new();  
     }
 
     public class ExcursionSceneResponse

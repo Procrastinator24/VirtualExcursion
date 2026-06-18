@@ -18,7 +18,7 @@ import { useAuth } from '@app/Contexts';
 import {ExcursionsTab} from "./ui/excursionTab/excursionTab.tsx";
 import {ExhibitsTab} from "./ui/exhibitsTab/exhibitsTab.tsx";
 import {WorkspaceSettingsModal} from "./ui/SettingsModal/SettingsModal.tsx";
-import {VerificationBadge} from "./ui/SettingsModal/ui/components/StatusBadge.tsx";
+import {VerificationBadge} from "@shared/ui/VerificationBadge/StatusBadge.tsx";
 
 type TabType = 'overview' | 'excursions' | 'exhibits' | 'members';
 
@@ -44,6 +44,8 @@ export const WorkspacePage = () => {
             try {
                 const response = await workspaceApi.getById(parseInt(id));
                 setWorkspace(response.data);
+                console.log(workspace)
+
                 // Проверяем, является ли текущий пользователь владельцем
                 if (user) {
                     setIsOwner(response.data.ownerId === user.id);
@@ -70,13 +72,11 @@ export const WorkspacePage = () => {
     ];
 
     const handleCreateExcursion = () => {
-        // TODO: переход на создание экскурсии с предустановленным workspaceId
         console.log('Create excursion for workspace:', workspace?.id);
         navigate(`/create-excursion?workspaceId=${workspace?.id}`);
     };
 
     const handleCreateExhibit = () => {
-        // TODO: переход на создание экспоната с предустановленным workspaceId
         console.log('Create exhibit for workspace:', workspace?.id);
         navigate(`/create-exhibit?workspaceId=${workspace?.id}`);
     };
@@ -112,36 +112,36 @@ export const WorkspacePage = () => {
     return (
         <div className="w-full bg-white">
             {/* Hero Image — на всю ширину */}
-            <div className="w-full h-96 overflow-hidden">
-                <img
+            <div className="w-full h-64 overflow-hidden">
+                <ImageWithFallback
                     src={workspace.bannerUrl || 'https://placehold.co/1920x360'}
                     alt={workspace.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-52 object-cover"
                 />
             </div>
 
             {/* Profile Header — на всю ширину, с внутренними отступами */}
             <div className="w-full">
-                <div className="max-w-[1440px] mx-auto px-8 md:px-12 lg:px-20 -mt-20">
-                    <div className="relative pt-8 pb-6">
+                <div className="max-w-[1440px] mx-auto px-8 md:px-12 lg:px-20 -mt-12">
+                    <div className="relative pt-6 pb-6">
                         {/* Avatar */}
-                        <div className="absolute -top-16 left-0">
+                        <div className="absolute -top-10 left-0">
                             <ImageWithFallback
                                 src={workspace.logoUrl || '/workspace-placeholder.jpg'}
                                 alt={workspace.name}
-                                className="w-40 h-40 rounded-full object-cover border-4 border-white shadow-lg"
+                                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                             />
                         </div>
 
                         {/* Контент с отступом под аватарку */}
-                        <div className="pl-48">
+                        <div className="pl-40">
                             <div className="flex items-start justify-between flex-wrap gap-4">
                                 <div className="flex-1 min-w-[280px]">
                                     <div className="flex items-center flex-wrap gap-3 mb-3">
                                         <h1 className="text-black text-3xl font-semibold leading-10">
                                             {workspace.name}
                                         </h1>
-                                        <VerificationBadge status={workspace.verificationStatus} />
+                                        <VerificationBadge status={workspace.verificationStatus}/>
                                     </div>
                                     <p className="text-black text-base leading-6 mb-4 max-w-2xl">
                                         {workspace.descriptionLong || workspace.descriptionShort || 'Описание пространства'}
@@ -149,7 +149,7 @@ export const WorkspacePage = () => {
                                     <div className="flex items-center flex-wrap gap-4">
                                         {workspace.address && (
                                             <div className="flex items-center gap-1">
-                                                <MapPin className="w-5 h-5 text-black" />
+                                                <MapPin className="w-5 h-5 text-black"/>
                                                 <span className="text-black text-base font-semibold">
                                                 {workspace.address}
                                             </span>
@@ -157,7 +157,7 @@ export const WorkspacePage = () => {
                                         )}
                                         {workspace.website && (
                                             <div className="flex items-center gap-1">
-                                                <Globe className="w-5 h-5 text-black" />
+                                                <Globe className="w-5 h-5 text-black"/>
                                                 <a
                                                     href={workspace.website}
                                                     target="_blank"
@@ -177,7 +177,7 @@ export const WorkspacePage = () => {
                                         onClick={handleSettings}
                                         className="px-5 py-2.5 bg-stone-900 rounded-xl text-white text-base font-medium flex items-center gap-2 hover:bg-stone-800 transition-colors shrink-0 mt-1"
                                     >
-                                        <Settings className="w-5 h-5" />
+                                        <Settings className="w-5 h-5"/>
                                         Настройка
                                     </button>
                                 )}
@@ -213,7 +213,8 @@ export const WorkspacePage = () => {
                         <div>
                             <h2 className="text-gray-900 text-2xl font-semibold mb-4">Статистика</h2>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
+                                <div
+                                    className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
                                     <div>
                                         <div className="text-gray-900 text-3xl font-semibold">
                                             {workspace.excursionsCount || 0}
@@ -221,10 +222,11 @@ export const WorkspacePage = () => {
                                         <div className="text-black text-xl font-normal">экскурсий</div>
                                     </div>
                                     <div className="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center">
-                                        <BookOpen className="w-5 h-5 text-stone-900" />
+                                        <BookOpen className="w-5 h-5 text-stone-900"/>
                                     </div>
                                 </div>
-                                <div className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
+                                <div
+                                    className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
                                     <div>
                                         <div className="text-gray-900 text-3xl font-semibold">
                                             {workspace.scenesCount || 0}
@@ -232,10 +234,11 @@ export const WorkspacePage = () => {
                                         <div className="text-black text-xl font-normal">экспонатов</div>
                                     </div>
                                     <div className="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center">
-                                        <Layers className="w-5 h-5 text-stone-900" />
+                                        <Layers className="w-5 h-5 text-stone-900"/>
                                     </div>
                                 </div>
-                                <div className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
+                                <div
+                                    className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
                                     <div>
                                         <div className="text-gray-900 text-3xl font-semibold">
                                             {/* TODO: добавить поле draftsCount в Workspace */}
@@ -244,10 +247,11 @@ export const WorkspacePage = () => {
                                         <div className="text-black text-xl font-normal">черновиков</div>
                                     </div>
                                     <div className="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center">
-                                        <FileText className="w-5 h-5 text-stone-900" />
+                                        <FileText className="w-5 h-5 text-stone-900"/>
                                     </div>
                                 </div>
-                                <div className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
+                                <div
+                                    className="p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex justify-between items-start">
                                     <div>
                                         <div className="text-gray-900 text-3xl font-semibold">
                                             {/* TODO: добавить поле totalViews в Workspace */}
@@ -256,7 +260,7 @@ export const WorkspacePage = () => {
                                         <div className="text-black text-xl font-normal">просмотров</div>
                                     </div>
                                     <div className="w-9 h-9 bg-gray-50 rounded-xl flex items-center justify-center">
-                                        <Eye className="w-5 h-5 text-stone-900" />
+                                        <Eye className="w-5 h-5 text-stone-900"/>
                                     </div>
                                 </div>
                             </div>
@@ -271,11 +275,12 @@ export const WorkspacePage = () => {
                                     className="w-72 p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 hover:shadow-md transition-shadow"
                                 >
                                     <div className="w-9 h-9 bg-stone-900 rounded-xl flex items-center justify-center">
-                                        <Plus className="w-5 h-5 text-white" />
+                                        <Plus className="w-5 h-5 text-white"/>
                                     </div>
                                     <div className="text-left">
                                         <div className="text-gray-900 text-base font-semibold">Создать экскурсию</div>
-                                        <div className="text-neutral-500 text-xs font-medium">Добавить новую экскурсию</div>
+                                        <div className="text-neutral-500 text-xs font-medium">Добавить новую экскурсию
+                                        </div>
                                     </div>
                                 </button>
                                 <button
@@ -283,11 +288,12 @@ export const WorkspacePage = () => {
                                     className="w-72 p-5 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 hover:shadow-md transition-shadow"
                                 >
                                     <div className="w-9 h-9 bg-stone-900 rounded-xl flex items-center justify-center">
-                                        <Plus className="w-5 h-5 text-white" />
+                                        <Plus className="w-5 h-5 text-white"/>
                                     </div>
                                     <div className="text-left">
                                         <div className="text-gray-900 text-base font-semibold">Добавить экспонат</div>
-                                        <div className="text-neutral-500 text-xs font-medium">Загрузить новый экспонат</div>
+                                        <div className="text-neutral-500 text-xs font-medium">Загрузить новый экспонат
+                                        </div>
                                     </div>
                                 </button>
                             </div>
@@ -302,12 +308,12 @@ export const WorkspacePage = () => {
 
                 {/* Excursions Tab */}
                 {activeTab === 'excursions' && (
-                    <ExcursionsTab workspaceId={workspace.id} isOwner={isOwner} />
+                    <ExcursionsTab workspaceId={workspace.id} isOwner={isOwner}/>
                 )}
 
                 {/* Exhibits Tab */}
                 {activeTab === 'exhibits' && (
-                    <ExhibitsTab workspaceId={workspace.id} isOwner={isOwner} />
+                    <ExhibitsTab workspaceId={workspace.id} isOwner={isOwner}/>
                 )}
 
                 {/* Members Tab */}

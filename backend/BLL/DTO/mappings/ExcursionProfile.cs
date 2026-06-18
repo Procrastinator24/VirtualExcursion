@@ -17,11 +17,11 @@ namespace VirtualExcursion.BLL.DTO.mappings
             CreateMap<UpdateExcursionRequest, Excursion>();
 
             CreateMap<Excursion, ExcursionResponse>()
-             .ForMember(dest => dest.workspaceName, opt => opt.MapFrom(src => src.Workspace != null ? src.Workspace.Name : null))
+             .ForMember(dest => dest.workspaceName, opt => 
+             opt.MapFrom(src => src.Workspace != null ? src.Workspace.Name : null))
 
-             .ForMember(dest => dest.GuideName,
-                 opt => opt.MapFrom(src => src.GuideProfile != null ? src.GuideProfile.OrganizationName : null))
              
+
              .ForMember(dest => dest.Scenes,
                  opt => opt.MapFrom(src => src.ExcursionScenes
                      .OrderBy(es => es.Order)
@@ -34,8 +34,8 @@ namespace VirtualExcursion.BLL.DTO.mappings
                          Order = es.Order
                      })))
              
-             .ForMember(dest => dest.ContentType,
-                opt => opt.MapFrom(src => DetermineContentType(src.ExcursionScenes)))
+             .ForMember(dest => dest.ContentTypes,
+                opt => opt.MapFrom(src => GetContentTypes(src.ExcursionScenes)))
              
              .ForMember(dest => dest.TagsNames,
                 opt => opt.MapFrom(src => src.ExcursionTags.Select(et => et.Tag.Name).ToList()))
@@ -44,20 +44,32 @@ namespace VirtualExcursion.BLL.DTO.mappings
                  opt => opt.MapFrom(src => src.Favourites.Count));
 
         }
-        private string DetermineContentType(ICollection<ExcursionScene> scenes)
+        private List<string> GetContentTypes(ICollection<ExcursionScene> scenes)
         {
-            if (scenes == null || !scenes.Any()) return "unknown";
+            if (scenes == null || !scenes.Any())
+                return new List<string>();
 
-            // Приоритет: VR > 3D > 360 > video > image
-            var types = scenes.Select(s => s.Scene.ContentType);
+            // Собираем уникальные типы контента из сцен
+            var types = scenes
+                .Select(s => s.Scene.ContentType)
+                .Where(t => !string.IsNullOrEmpty(t))
+                .Distinct()
+                .ToList();
 
-            if (types.Contains("vr")) return "vr";
-            if (types.Contains("3d")) return "3d";
-            if (types.Contains("360")) return "panorama";
-            if (types.Contains("video")) return "video";
-            if (types.Contains("image")) return "image";
+            // Маппим типы из БД в названия для фронта
+            var mappedTypes = new List<string>();
 
-            return "mixed";
+            foreach (var type in types)
+            {
+                if (type.Contains("vr")) mappedTypes.Add("vr");
+                else if (type.Contains("3d")) mappedTypes.Add("3d");
+                else if (type.Contains("360")) mappedTypes.Add("panorama");
+                else if (type.Contains("video")) mappedTypes.Add("video");
+                else if (type.Contains("image")) mappedTypes.Add("image");
+                else mappedTypes.Add(type.ToLower());
+            }
+
+            return mappedTypes.Distinct().ToList();
         }
     }
 }

@@ -53,11 +53,11 @@ namespace VirtualExcursion.API.Controllers
         /// <response code="200">Успешное выполнение. Возвращает список экскурсий.</response>
         /// <response code="500">Внутренняя ошибка сервера.</response>
         [HttpGet]
-        public async Task<ActionResult<List<ExcursionResponse>>> GetAll()
+        public async Task<ActionResult<List<ExcursionResponse>>> GetAll([FromQuery] bool onlyPublished = true)
         {
             try
             {
-                var result = await _excursionService.Get();
+                var result = await _excursionService.Get(onlyPublished);
                 var userId = GetCurrentUserId();
 
                 // Добавляем информацию об избранном для каждого пользователя

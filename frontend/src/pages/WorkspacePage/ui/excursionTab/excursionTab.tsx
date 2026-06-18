@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { excursionApi } from '../../../../entities/excursion';
-import { ExcursionsTable } from './ExcursionTable';
+import { ExcursionsTable } from './excursionTable.tsx';
 import type { ExcursionResponse } from '@entities/excursion/types/excursion';
 
 interface ExcursionsTabProps {

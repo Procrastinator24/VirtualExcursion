@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -33,21 +34,26 @@ namespace VirtualExcursion
             builder.Services.AddScoped<IModelSceneRepository, ModelSceneRepository>();
             builder.Services.AddScoped<IPOIRepository, POIRepository>();
             builder.Services.AddScoped<ITagRepository, TagRepository>();
-            builder.Services.AddScoped<IGuideProfileRepository, GuideProfileRepository>();
+            //builder.Services.AddScoped<IGuideProfileRepository, GuideProfileRepository>();
             builder.Services.AddScoped<IUserRepository,  UserRepository>();
             builder.Services.AddScoped<ISceneRepository, SceneRepository>();
             builder.Services.AddScoped<IExcursionRepository, ExcursionRepository>();
             builder.Services.AddScoped<IFavouriteRepository, FavouriteRepository>();
             builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
             builder.Services.AddScoped<IWorkspaceMemberRepository, WorkspaceMemberRepository>();
+            builder.Services.AddScoped<ISceneRepository, SceneRepository>();
+            builder.Services.AddScoped<IThreeDSceneRepository, ThreeDSceneRepository>();
+            builder.Services.AddScoped<IImageSceneRepository, ImageSceneRepository>();
+            builder.Services.AddScoped<IVideoSceneRepository, VideoSceneRepository>();
+            builder.Services.AddScoped<IPanoramaSceneRepository, PanoramaRepository>();
 
 
 
-            // Сервисы
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             builder.Services.AddScoped<IPOIService, POIService>();
             builder.Services.AddScoped<IModelSceneService, ModelSceneService>();
             builder.Services.AddScoped<ITagService, TagService>();
-            builder.Services.AddScoped<IGuideProfileService, GuideProfileService>();
+            //builder.Services.AddScoped<IGuideProfileService, GuideProfileService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPasswordHashingService, PasswordHashingService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
@@ -61,21 +67,46 @@ namespace VirtualExcursion
             builder.Services.AddSingleton<IVerificationCodeStorage, InMemoryCodeStorage>();
 
 
-
             builder.Services.AddAutoMapper(typeof(VirtualExcursion.BLL.MappingProfileMarker));
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Kestrel пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = null; // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+                options.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10);
+                options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10);
+            });
+
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Form Options пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = int.MaxValue;
+                options.MemoryBufferThreshold = int.MaxValue;
+            });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    });
+            });
+
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Virtual Excursion API",
                     Version = "v1",
-                    Description = "API для управления виртуальными экскурсиями"
+                    Description = "API пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
                 });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
 
-                // НАСТРОЙКА JWT ДЛЯ SWAGGER
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -83,7 +114,7 @@ namespace VirtualExcursion
                     Scheme = "Bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Description = "Введите JWT токен в формате: eyJhbGciOiJIUzI1NiIs..."
+                    Description = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ JWT пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: eyJhbGciOiJIUzI1NiIs..."
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -102,36 +133,47 @@ namespace VirtualExcursion
                 });
             });
 
+            var jwtSecret = builder.Configuration["Jwt:Key"];
+            var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+            var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+            Console.WriteLine($"рџ”‘ JWT Key: '{jwtSecret ?? "NULL"}'");
+
+            if (string.IsNullOrEmpty(jwtSecret))
+            {
+                Console.WriteLine("вљ пёЏ JWT Secret is NULL! Using fallback.");
+                jwtSecret = "your-super-secret-key-with-at-least-32-characters-long";
+            }
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-            };
-
-            // Для передачи токена через заголовок
-            options.Events = new JwtBearerEvents
-            {
-                OnMessageReceived = context =>
+                .AddJwtBearer(options =>
                 {
-                    var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                    if (!string.IsNullOrEmpty(token))
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        context.Token = token;
-                    }
-                    return Task.CompletedTask;
-                }
-            };
-        });
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtIssuer ?? "VirtualExcursionAPI",
+                        ValidAudience = jwtAudience ?? "VirtualExcursionClient",
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtSecret))
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                            if (!string.IsNullOrEmpty(token))
+                            {
+                                context.Token = token;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+            
 
             builder.Services.AddAuthorization();
 
@@ -156,7 +198,9 @@ namespace VirtualExcursion
 
             app.UseHttpsRedirection();
 
+         
 
+            app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
 
