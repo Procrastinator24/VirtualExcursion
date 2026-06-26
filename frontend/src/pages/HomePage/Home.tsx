@@ -44,7 +44,7 @@ export const HomePage = () => {
             setAuthors(g.data.slice(0,3))
         })
         sceneApi.getScenes().then((scenes) =>{
-            setScenes(scenes)
+            setScenes(scenes.slice(0,4))
         })
     }, []);
     return (

@@ -101,7 +101,7 @@ namespace VirtualExcursion
                 {
                     Title = "Virtual Excursion API",
                     Version = "v1",
-                    Description = "API ��� ���������� ������������ �����������"
+                    Description = "API "
                 });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);

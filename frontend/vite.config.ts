@@ -27,6 +27,10 @@ export default defineConfig({
         target: 'http://localhost:5209',
         changeOrigin: true,
       },
+      '^/models/.*\\.fbx': {
+        target: 'http://localhost:5209',
+        changeOrigin: true,
+      },
       '/models': {
         target: 'http://localhost:5209',
         changeOrigin: true,
@@ -38,4 +42,9 @@ export default defineConfig({
 
         },
       },
-    }}})
+    }},
+  optimizeDeps: {
+    include: ['models/*.fbx'], // Не обязательно, но может помочь
+    },
+    assetsInclude: ['**/*.fbx'], // 🔥 Говорим Vite обрабатывать .fbx как ассеты
+});

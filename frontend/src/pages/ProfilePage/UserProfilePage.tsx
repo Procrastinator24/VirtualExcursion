@@ -107,7 +107,7 @@ export const UserProfilePage = () => {
             <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
                 {([
                     { key: "favorites", label: "Избранное", icon: <Heart className="w-4 h-4" /> },
-                    { key: "workspaces", label: "Пространтсва", icon: <Layers className="w-4 h-4" /> },
+                    { key: "workspaces", label: "Пространства", icon: <Layers className="w-4 h-4" /> },
                     { key: "settings", label: "Настройки", icon: <Settings className="w-4 h-4" /> },
                 ] as const).map((t) => (
                     <button
@@ -125,16 +125,21 @@ export const UserProfilePage = () => {
                 ))}
             </div>
 
-            {/* Content */}
             {tab === "favorites" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                     {favoriteExcursions.map((ex) => (
                         <ExcursionCard
                             key={ex.id}
-                            excursion={ex}
+                            excursion={{
+                                id: ex.excursion.id,
+                                title: ex.excursion.title,
+                                thumbnailUrl: ex.excursion.thumbnailUrl,
+                                duration: ex.excursion.duration,
+                                workspaceName: ex.workspaceName, // Или из других данных
+                                }}
                         />
                     ))}
-                    {((tab === "favorites" && favoriteExcursions.length === 0)) && (
+                    {favoriteExcursions.length === 0 && (
                         <div className="col-span-full text-center py-12 text-stone-400">
                             Нет избранных экскурсий
                         </div>

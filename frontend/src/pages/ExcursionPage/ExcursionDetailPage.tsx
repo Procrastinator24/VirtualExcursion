@@ -120,25 +120,25 @@ export const ExcursionDetailPage = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-900/80 via-stone-900/30 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 max-w-[1320px] mx-auto px-6 pb-8">
                     <div className="flex flex-wrap gap-2 mb-3">
-                        {/* ✅ Все типы контента через SceneTypeBadge */}
+                        {/* Все типы контента через SceneTypeBadge */}
                         <SceneTypeBadge type={contentTypes} size="sm" />
                         
-                        {excursion.isPublished ? (
-                            <span className="px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium">
-                                Опубликовано
-                            </span>
-                        ) : (
-                            <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-medium">
-                                Черновик
-                            </span>
-                        )}
+                        {/*{excursion.isPublished ? (*/}
+                        {/*    <span className="px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium">*/}
+                        {/*        Опубликовано*/}
+                        {/*    </span>*/}
+                        {/*) : (*/}
+                        {/*    <span className="px-2.5 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-medium">*/}
+                        {/*        Черновик*/}
+                        {/*    </span>*/}
+                        {/*)}*/}
                     </div>
                     <h1 className="text-white text-4xl font-semibold">
                         {excursion.title}
                     </h1>
                     <div className="flex flex-wrap items-center gap-4 mt-2 text-white/70 text-sm">
                         <span className="flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" /> {excursion.workspaceName || 'Неизвестный гид'}
+                            <MapPin className="w-3.5 h-3.5" /> {excursion.workspaceName || 'Неизвестный автор'}
                         </span>
                         <span className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5" /> {excursion.duration || '—'}
@@ -273,7 +273,7 @@ export const ExcursionDetailPage = () => {
                                 {[
                                     ['Продолжительность', excursion.duration || '—'],
                                     ['Сцены', `${scenes.length} ${scenes.length === 1 ? 'сцена' : 'сцен'}`],
-                                    ['Гид', excursion.workspaceName || '—'],
+                                    ['Автор', excursion.workspaceName || '—'],
                                     ['Просмотры', excursion.viewCount?.toLocaleString() || '0'],
                                     ['Дата создания', new Date(excursion.createdAt).toLocaleDateString('ru-RU')],
                                 ].map(([label, value]) => (

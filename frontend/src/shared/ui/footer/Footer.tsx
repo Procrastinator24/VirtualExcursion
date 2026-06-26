@@ -10,7 +10,7 @@ export function Footer() {
                         <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                             <Compass className="w-4 h-4 text-white"/>
                         </div>
-                        <span className="text-white" style={{fontSize: 16, fontWeight: 600}}>HistoryVR</span>
+                        <span className="text-white" style={{fontSize: 16, fontWeight: 600}}>Культуриум</span>
                     </div>
                     <p style={{fontSize: 13, lineHeight: 1.6}}>Платформа для представления историко-культурного наследия в формате виртуальных экскурсий.</p>
                 </div>

@@ -3,6 +3,7 @@ import { Image, Video, Globe, Box } from 'lucide-react';
 import type { SceneType } from '@entities/sceneType';
 import type { CreateSceneRequest } from '../../../entities/scene/types/scene';
 import { sceneApi } from '@entities/scene';
+import {ImageWithFallback} from "../../../shared/ui/imgWrapper/ImageWithFallback.tsx";
 
 interface BasicInfoStepProps {
     data: CreateSceneRequest;
@@ -116,7 +117,7 @@ export const BasicInfoStep = ({ data, onChange, onNext }: BasicInfoStepProps) =>
                 <div className="mt-1 relative w-full h-40 rounded-2xl border-2 border-dashed border-stone-300 flex flex-col justify-center items-center gap-2 overflow-hidden">
                     {data?.thumbnailUrl ? (
                         <>
-                            <img
+                            <ImageWithFallback
                                 src={data.thumbnailUrl}
                                 alt="Обложка"
                                 className="w-full h-full object-cover"

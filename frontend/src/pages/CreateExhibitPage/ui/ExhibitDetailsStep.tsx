@@ -134,7 +134,7 @@ export const ExhibitDetailsStep = ({
                     <label htmlFor="cover-upload" className="cursor-pointer block">
                         {data.thumbnailUrl ? (
                             <div className="relative">
-                                <img
+                                <ImageWithFallback
                                     src={data.thumbnailUrl}
                                     alt="Обложка"
                                     className="max-h-32 mx-auto rounded-lg object-contain"

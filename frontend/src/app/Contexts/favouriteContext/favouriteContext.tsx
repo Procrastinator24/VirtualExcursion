@@ -18,7 +18,6 @@ export const FavouritesProvider = ({ children }: PropsWithChildren) => {
     const [favourites, setFavourites] = useState<ExcursionResponse[]>([]);
     const [favouriteIds, setFavouriteIds] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
-    console.log('✅ FavouritesProvider mounted');
 
     // Загрузка избранного при монтировании
     useEffect(() => {

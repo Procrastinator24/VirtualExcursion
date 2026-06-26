@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Globe, BookOpen, Users, Shield, Compass, Heart } from 'lucide-react';
 
 export const AboutPage = () => {
     return (
@@ -20,13 +21,14 @@ export const AboutPage = () => {
             {/* Миссия */}
             <div className="max-w-[1280px] mx-auto px-6 py-16">
                 <div className="flex flex-col lg:flex-row justify-between items-start gap-10">
-                    <div className="flex-1">
+                    <div className="flex-1 max-w-[760px]">
                         <h2 className="text-stone-900 text-3xl font-semibold font-['Inter'] leading-10 mb-3">
                             Наша миссия
                         </h2>
                         <div className="text-neutral-950 text-lg font-normal font-['Inter'] leading-6 space-y-4">
                             <p>
-                                «Культуриум» — это платформа для проведения виртуальных экскурсий по музеям, историческим
+                                «Культуриум» — это платформа для проведения виртуальных экскурсий по музеям,
+                                историческим
                                 местам и объектам культурного наследия.
                             </p>
                             <p>
@@ -37,7 +39,8 @@ export const AboutPage = () => {
                             <p>
                                 Мы создаём удобную цифровую среду, где экскурсоводы и образовательные организации могут
                                 проводить онлайн-экскурсии, демонстрировать экспонаты, исторические пространства,
-                                3D-модели и мультимедийные материалы. Такой формат помогает сделать знакомство с историей
+                                3D-модели и мультимедийные материалы. Такой формат помогает сделать знакомство с
+                                историей
                                 и культурой более доступным, наглядным и интересным для школьников, студентов и широкой
                                 аудитории.
                             </p>
@@ -57,15 +60,18 @@ export const AboutPage = () => {
                                 </p>
                             </div>
                             <div className="absolute top-2 right-2 flex gap-1">
-                                <span className="px-2 py-1 bg-orange-100 text-orange-600 text-xs font-medium font-['Inter'] rounded-lg outline outline-1 outline-orange-600">
+                                <span
+                                    className="px-2 py-1 bg-orange-100 text-orange-600 text-xs font-medium font-['Inter'] rounded-lg outline outline-1 outline-orange-600">
                                     3D-модель
                                 </span>
-                                <span className="px-2 py-1 bg-blue-100 text-sky-700 text-xs font-medium font-['Inter'] rounded-lg outline outline-1 outline-sky-700">
+                                <span
+                                    className="px-2 py-1 bg-blue-100 text-sky-700 text-xs font-medium font-['Inter'] rounded-lg outline outline-1 outline-sky-700">
                                     Фото
                                 </span>
                             </div>
                         </div>
-                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden -rotate-[14deg] absolute top-32 -left-16 w-72">
+                        <div
+                            className="bg-white rounded-2xl shadow-lg overflow-hidden -rotate-[14deg] absolute top-32 -left-16 w-72">
                             <img src="/aboutpageMusem.png" alt="Экскурсия" className="w-full h-52 object-cover"/>
                             <div className="p-4">
                                 <h3 className="text-stone-900 text-lg font-semibold font-['Inter'] leading-6">
@@ -77,7 +83,8 @@ export const AboutPage = () => {
                                 </div>
                             </div>
                             <div className="absolute top-2 right-2">
-                                <span className="px-2 py-1 bg-sky-50 text-neutral-600 text-xs font-medium font-['Inter'] rounded-lg outline outline-1 outline-zinc-500">
+                                <span
+                                    className="px-2 py-1 bg-sky-50 text-neutral-600 text-xs font-medium font-['Inter'] rounded-lg outline outline-1 outline-zinc-500">
                                     Новый
                                 </span>
                             </div>
@@ -86,7 +93,6 @@ export const AboutPage = () => {
                 </div>
             </div>
 
-            {/* Ценности */}
             <div className="max-w-[1280px] mx-auto px-6 py-20">
                 <h2 className="text-stone-900 text-3xl font-semibold font-['Inter'] leading-10 text-center mb-6">
                     Наши ценности
@@ -95,41 +101,51 @@ export const AboutPage = () => {
                     {[
                         {
                             title: 'Доступность',
-                            desc: 'Культурное наследие должно быть открыто для разных аудиторий — независимо от места проживания, возраста и возможности посетить музей лично.'
+                            desc: 'Культурное наследие должно быть открыто для разных аудиторий — независимо от места проживания, возраста и возможности посетить музей лично.',
+                            icon: Globe,
                         },
                         {
                             title: 'Удобство',
-                            desc: 'Помогаем музеям, экскурсоводам, преподавателям и студентам создавать и публиковать виртуальные экскурсии без лишней технической сложности.'
+                            desc: 'Помогаем музеям, экскурсоводам, преподавателям и студентам создавать и публиковать виртуальные экскурсии без лишней технической сложности.',
+                            icon: BookOpen,
                         },
                         {
                             title: 'Качество',
-                            desc: 'Платформа поддерживает аккуратное оформление экскурсий: с понятной структурой, визуальными материалами и удобным маршрутом для зрителя.'
+                            desc: 'Платформа поддерживает аккуратное оформление экскурсий: с понятной структурой, визуальными материалами и удобным маршрутом для зрителя.',
+                            icon: Users,
                         },
                         {
                             title: 'Наглядность',
-                            desc: 'Изображения, панорамы, 3D-модели, видео и интерактивные элементы помогают авторам показывать экспонаты, места и события более выразительно.'
+                            desc: 'Изображения, панорамы, 3D-модели, видео и интерактивные элементы помогают авторам показывать экспонаты, места и события более выразительно.',
+                            icon: Shield,
                         },
                         {
                             title: 'Образование',
-                            desc: 'Виртуальные экскурсии могут быть частью учебного, музейного и просветительского процесса, помогая изучать историю понятнее, нагляднее и интереснее.'
+                            desc: 'Виртуальные экскурсии могут быть частью учебного, музейного и просветительского процесса, помогая изучать историю понятнее, нагляднее и интереснее.',
+                            icon: Compass,
                         },
                         {
                             title: 'Сотрудничество',
-                            desc: 'Проект объединяет гидов, музеи, университет, студентов, преподавателей и авторов, развивая цифровой формат работы с культурным наследием.'
+                            desc: 'Проект объединяет гидов, музеи, университет, студентов, преподавателей и авторов, развивая цифровой формат работы с культурным наследием.',
+                            icon: Heart,
                         }
-                    ].map((item, idx) => (
-                        <div key={idx} className="p-6 bg-white rounded-2xl outline outline-1 outline-stone-300">
-                            <div className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-3">
-                                <div className="w-6 h-6 bg-stone-600 rounded"/>
+                    ].map((item, idx) => {
+                        const Icon = item.icon;
+                        return (
+                            <div key={idx} className="p-6 bg-white rounded-2xl outline outline-1 outline-stone-300">
+                                <div
+                                    className="w-12 h-12 bg-stone-100 rounded-2xl flex items-center justify-center mb-3">
+                                    <Icon className="w-6 h-6 text-stone-600" strokeWidth={1.5}/>
+                                </div>
+                                <h3 className="text-stone-900 text-xl font-semibold font-['Inter'] leading-6 mb-2">
+                                    {item.title}
+                                </h3>
+                                <p className="text-stone-500 text-base font-normal font-['Inter'] leading-6">
+                                    {item.desc}
+                                </p>
                             </div>
-                            <h3 className="text-stone-900 text-xl font-semibold font-['Inter'] leading-6 mb-2">
-                                {item.title}
-                            </h3>
-                            <p className="text-stone-500 text-base font-normal font-['Inter'] leading-6">
-                                {item.desc}
-                            </p>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
@@ -141,11 +157,11 @@ export const AboutPage = () => {
                 <div className="flex flex-wrap justify-center items-center gap-12">
                     {[...Array(5)].map((_, i) => (
                         <div key={i} className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-stone-900 rounded-[10px] flex items-center justify-center">
-                                <div className="w-6 h-6 border-2 border-white rounded"/>
+                            <div className="w-9 h-9 rounded-lg bg-stone-900 flex items-center justify-center">
+                                <Compass className="w-5 h-5 text-white"/>
                             </div>
                             <span className="text-stone-900 text-2xl font-semibold font-['Inter'] leading-7">
-                                HistoryVR
+                                Культуриум
                             </span>
                         </div>
                     ))}
@@ -207,7 +223,8 @@ export const AboutPage = () => {
                             className="inline-flex items-center gap-3 px-3.5 py-3 bg-white rounded-[10px] text-stone-900 text-base font-medium font-['Inter'] leading-6 hover:bg-stone-100 transition-colors"
                         >
                             Зарегистрироваться
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 strokeWidth="2">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
                         </Link>

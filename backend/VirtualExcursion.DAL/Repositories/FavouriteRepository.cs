@@ -23,7 +23,7 @@ namespace VirtualExcursion.DAL.Repositories
         {
             return await _context.Favourite
                 .Include(f => f.User)
-                .Include(f => f.Excursion)
+                .Include(f => f.Excursion).ThenInclude(ex => ex.Workspace)
                 .Include(f => f.Scene)
                 .Where(f => f.UserId == userId)
                 .OrderByDescending(f => f.CreatedAt)

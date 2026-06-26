@@ -18,8 +18,8 @@ namespace VirtualExcursion.BLL.DTO.mappings
 
             // Entity → Response
             CreateMap<Favourite, FavouriteResponse>()
-                .ForMember(dest => dest.UserName,
-                    opt => opt.MapFrom(src => src.User.Username))
+                .ForMember(dest => dest.WorkspaceName,
+                    opt => opt.MapFrom(src => src.Excursion.Workspace.Name))
                 .ForMember(dest => dest.Excursion,
                     opt => opt.MapFrom(src => src.Excursion))
                 .ForMember(dest => dest.Scene,

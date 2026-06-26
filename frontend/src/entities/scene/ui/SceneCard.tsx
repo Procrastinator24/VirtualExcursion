@@ -1,7 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Clock, Eye } from 'lucide-react';
 import { ImageWithFallback } from '@shared/ui/imgWrapper/ImageWithFallback';
-import { SceneTypeBadge } from '@entities/sceneType/ui/sceneTypeBadge';
 
 export interface SceneCardProps {
     id: number;
@@ -9,7 +7,7 @@ export interface SceneCardProps {
     description?: string;
     thumbnailUrl?: string;
     contentType?: string;
-    isPublished?: boolean;
+    tags?: string[];
     viewCount?: number;
     createdAt?: string;
     /** ID экскурсии (опционально, для навигации в контексте экскурсии) */
@@ -22,7 +20,7 @@ export const SceneCard = ({
                               description,
                               thumbnailUrl,
                               contentType,
-                              isPublished = true,
+                              tags = [],
                               viewCount = 0,
                               createdAt,
                               excursionId,
@@ -34,6 +32,22 @@ export const SceneCard = ({
             navigate(`/scene/${excursionId}/${id}`);
         } else {
             navigate(`/scene/${id}`);
+        }
+    };
+
+    // Определяем цвет бейджа в зависимости от типа контента
+    const getContentTypeStyles = (type?: string) => {
+        switch (type?.toLowerCase()) {
+            case '3d':
+                return 'bg-orange-100 outline-orange-600 text-orange-600';
+            case 'panorama':
+                return 'bg-blue-100 outline-blue-600 text-blue-600';
+            case 'video':
+                return 'bg-red-100 outline-red-600 text-red-600';
+            case 'image':
+                return 'bg-green-100 outline-green-600 text-green-600';
+            default:
+                return 'bg-gray-100 outline-gray-500 text-gray-600';
         }
     };
 
@@ -52,53 +66,75 @@ export const SceneCard = ({
     return (
         <div
             onClick={handleClick}
-            className="group bg-white rounded-xl overflow-hidden border border-stone-200/60 hover:shadow-lg hover:border-stone-300 transition-all cursor-pointer"
+            className="w-72 rounded-xl relative bg-white outline outline-1 outline-offset-[-1px] outline-stone-300 rounded-none inline-flex flex-col justify-start items-start overflow-hidden hover:shadow-lg hover:outline-stone-400 transition-all cursor-pointer group"
         >
             {/* Изображение */}
-            <div className="relative h-44 overflow-hidden">
-                <ImageWithFallback
-                    src={thumbnailUrl || '/placeholder-image.jpg'}
-                    alt={title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-
-                {/* Бейджи */}
-                <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                    {contentType && (
-                        <SceneTypeBadge type={contentType} size="sm" />
-                    )}
-                    <span
-                        className={`px-2 py-0.5 rounded-md text-[10px] font-medium ${
-                            isPublished
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-amber-100 text-amber-700'
-                        }`}
-                    >
-                        {isPublished ? 'Опубликовано' : 'Черновик'}
-                    </span>
-                </div>
-            </div>
+            <ImageWithFallback
+                src={thumbnailUrl || 'https://placehold.co/302x187'}
+                alt={title}
+                className="self-stretch h-48 rounded-lg object-cover group-hover:scale-105 transition-transform duration-500"
+            />
 
             {/* Контент */}
-            <div className="p-4">
-                <h3 className="text-stone-900 mb-1 text-[15px] font-semibold line-clamp-1">
-                    {title}
-                </h3>
-                <p className="text-stone-500 mb-3 text-[13px] leading-5 line-clamp-2">
-                    {description || 'Без описания'}
-                </p>
-
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-stone-100">
-                    <div className="flex items-center gap-1 text-stone-500 text-xs">
-                        <Clock className="w-3 h-3" />
-                        {formatDate(createdAt) || '—'}
-                    </div>
-                    <div className="flex items-center gap-1 text-stone-500 text-xs">
-                        <Eye className="w-3 h-3" />
-                        <span>{viewCount?.toLocaleString() || 0} просмотров</span>
+            <div className="w-full py-4 px-4 flex flex-col justify-start items-start gap-2">
+                <div className="self-stretch flex flex-col justify-start items-start gap-2.5">
+                    <div className="self-stretch justify-start text-stone-900 text-lg font-semibold font-['Inter'] leading-6 line-clamp-1">
+                        {title}
                     </div>
                 </div>
+
+                <div className="self-stretch flex flex-col justify-center items-start gap-2.5">
+                    <div className="self-stretch justify-start text-stone-950 text-sm font-normal font-['Inter'] leading-4 line-clamp-2">
+                        {description || 'Без описания'}
+                    </div>
+                </div>
+
+                {/* Теги */}
+                <div className="flex justify-start items-start gap-1.5 flex-wrap">
+                    {tags.length > 0 ? (
+                        tags.map((tag) => (
+                            <div
+                                key={tag}
+                                className="px-2 py-1 bg-zinc-100 rounded-sm inline-flex flex-col justify-start items-center gap-2.5"
+                            >
+                                <div className="justify-start text-black text-xs font-medium font-['Inter'] leading-4">
+                                    {tag}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="px-2 py-1 bg-zinc-100 rounded-sm">
+                            <div className="justify-start text-stone-400 text-xs font-medium font-['Inter'] leading-4">
+                                ВОВ
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Просмотры и дата */}
+                {/*<div className="flex items-center justify-between w-full mt-1 text-stone-500 text-xs font-['Inter']">*/}
+                {/*    <span>{formatDate(createdAt) || '—'}</span>*/}
+                {/*    <span>{viewCount?.toLocaleString() || 0} просмотров</span>*/}
+                {/*</div>*/}
             </div>
+
+            {/* Бейдж типа контента (абсолютный) */}
+            {contentType && (
+                <div className="absolute top-3 right-3 inline-flex justify-end items-start gap-1.5 flex-wrap content-start">
+                    <div
+                        className={`px-2 py-1 rounded-lg outline outline-1 outline-offset-[-1px] inline-flex flex-col justify-start items-center gap-2.5 ${getContentTypeStyles(
+                            contentType
+                        )}`}
+                    >
+                        <div className="text-xs font-medium font-['Inter'] leading-4">
+                            {contentType === '3d' && '3D-модель'}
+                            {contentType === 'panorama' && 'Панорама'}
+                            {contentType === 'video' && 'Видео'}
+                            {contentType === 'image' && 'Изображение'}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -4,7 +4,15 @@ import {
     ChevronLeft, ChevronRight, Info, MapPin, Maximize2, Minimize2, X,
     Eye, Globe, Video, Image as ImageIcon, Box, Play
 } from 'lucide-react';
-import { Engine, Scene as BabylonScene, FlyCamera, Vector3, HemisphericLight, SceneLoader } from '@babylonjs/core';
+import {
+    Engine,
+    Scene as BabylonScene,
+    FlyCamera,
+    Vector3,
+    HemisphericLight,
+    SceneLoader,
+    ArcRotateCamera
+} from '@babylonjs/core';
 import '@babylonjs/loaders';
 import { sceneApi } from '../../../entities/scene/api/scene.api.ts';
 import { excursionApi } from '@entities/excursion/api/excursion.api';
@@ -61,6 +69,7 @@ export const SceneViewerPage = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const engineRef = useRef<Engine | null>(null);
     const sceneRef = useRef<BabylonScene | null>(null);
+    const cameraRef = useRef<ArcRotateCamera | null>(null);
 
     // Загрузка данных
     useEffect(() => {
@@ -112,9 +121,7 @@ export const SceneViewerPage = () => {
         return () => setIsMounted(false);
     }, []);
 
-    // Babylon.js загрузка (только для 3D)
     useLayoutEffect(() => {
-        // Ждём данные и проверяем, что это 3D
         if (!sceneData || sceneData.contentType !== '3d' || !sceneData.modelUrl) {
             console.log('⏭️ Not a 3D model or missing data');
             return;
@@ -125,7 +132,6 @@ export const SceneViewerPage = () => {
             return;
         }
 
-        // Проверяем canvas
         const canvas = canvasRef.current;
         if (!canvas) {
             console.error('❌ Canvas ref is null!');
@@ -134,7 +140,6 @@ export const SceneViewerPage = () => {
 
         console.log('✅ Canvas found, initializing Babylon...');
 
-        // Очищаем предыдущие экземпляры
         if (engineRef.current) {
             engineRef.current.dispose();
             engineRef.current = null;
@@ -149,11 +154,38 @@ export const SceneViewerPage = () => {
         const scene = new BabylonScene(engine);
         sceneRef.current = scene;
 
-        const camera = new FlyCamera("FlyCamera", new Vector3(0, 5, -10), scene);
-        camera.attachControl(true);
+        // 🎯 НАСТРОЙКА КАМЕРЫ (стандартная, без колдовства)
+        // Ставим камеру на фиксированную дистанцию 8, чтобы быть рядом с моделью
+        const camera = new ArcRotateCamera(
+            "camera",
+            -Math.PI / 2.5,  // Чуть сбоку
+            Math.PI / 2.8,   // Чуть сверху
+            8,               // ФИКСИРОВАННАЯ ДИСТАНЦИЯ (будет рядом с моделью)
+            Vector3.Zero(),  // Пока цель — центр, потом обновим
+            scene
+        );
 
+        // Настройки управления (как в Sketchfab, но без анимаций)
+        camera.angularSensibilityX = 100;
+        camera.angularSensibilityY = 100;
+        camera.panningSensibility = 100;
+        camera.wheelPrecision = 10;    // Быстрое колесико
+        camera.inertia = 0.6;          // Плавная остановка
+        camera.speed = 0.5;
+        camera.lowerRadiusLimit = 0.5; // Минимум — почти вплотную
+        camera.upperRadiusLimit = 200; // Можно отдалиться очень далеко
+        camera.minZ = 0.1;
+        camera.maxZ = 10000;
+
+        camera.attachControl(true);
+        cameraRef.current = camera;
+
+        // Свет
         const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
         light.intensity = 0.7;
+
+        const backLight = new HemisphericLight("backLight", new Vector3(0, -0.5, -1), scene);
+        backLight.intensity = 0.3;
 
         const loadModel = async () => {
             try {
@@ -163,10 +195,24 @@ export const SceneViewerPage = () => {
                 setIsModelLoaded(true);
 
                 if (result.meshes.length > 0) {
-                    const boundingInfo = result.meshes[0].getBoundingInfo();
+                    // Просто берём первый меш для центра
+                    const mesh = result.meshes[0];
+                    const boundingInfo = mesh.getBoundingInfo();
                     if (boundingInfo) {
-                        camera.setTarget(boundingInfo.boundingBox.center);
+                        const center = boundingInfo.boundingBox.center;
+
+                        // 🎯 Просто ставим камеру на центр модели
+                        camera.target = center;
+                        // Дистанция остаётся 8 (фиксированная)
+                        camera.radius = 8;
+                        camera.alpha = -Math.PI / 2.5;
+                        camera.beta = Math.PI / 2.8;
+
+                        console.log('🎯 Camera set to center:', center);
                     }
+                } else {
+                    camera.target = Vector3.Zero();
+                    camera.radius = 8;
                 }
             } catch (err) {
                 console.error("❌ Error loading model:", err);
@@ -189,8 +235,9 @@ export const SceneViewerPage = () => {
                 sceneRef.current.dispose();
                 sceneRef.current = null;
             }
+            cameraRef.current = null;
         };
-    }, [sceneData, isMounted]);// Зависит от sceneData
+    }, [sceneData, isMounted]);
 
     // Очистка при размонтировании компонента
     useEffect(() => {
